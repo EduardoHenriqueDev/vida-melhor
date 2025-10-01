@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { signOut } from '../../services/authService'
+import Navbar from '../../components/Navbar/Navbar'
+import Sidebar from '../../components/Sidebar/Sidebar'
 import './Home.css'
 
 interface HomeProps {
@@ -9,6 +11,7 @@ interface HomeProps {
 
 const Home = ({ onSignOut }: HomeProps) => {
   const [displayName, setDisplayName] = useState<string>('')
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     const loadUser = async () => {
@@ -27,10 +30,9 @@ const Home = ({ onSignOut }: HomeProps) => {
 
   return (
     <div className="home-container">
-      <header className="home-header">
-        <img src="/logo.png" alt="Logo" className="home-logo" />
-        <button className="signout-button" onClick={handleSignOut}>Sair</button>
-      </header>
+      <Navbar displayName={displayName} onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} />
+
+      <Sidebar open={open} displayName={displayName} onClose={() => setOpen(false)} onSignOut={handleSignOut} />
 
       <main className="home-main">
         <h2 className="home-title">Bem-vindo, {displayName}</h2>
