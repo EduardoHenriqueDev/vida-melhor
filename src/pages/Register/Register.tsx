@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { EyeIcon, EyeOffIcon } from '../../components/Icons'
+import { CoolInput, PasswordInput } from '../../components/CoolInput/CoolInput'
 import { signUpWithProfile } from '../../services/authService'
 import './Register.css'
 
@@ -42,8 +42,6 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
     confirmPassword: ''
   })
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -57,14 +55,6 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
       ...prev,
       [name]: next
     }))
-  }
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword)
-  }
-
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,107 +94,73 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
         </div>
         
         <form onSubmit={handleSubmit} className="register-form">
-          <div className="form-group">
-            <label htmlFor="name">Nome completo</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Digite seu nome completo"
-              required
-            />
-          </div>
+          <CoolInput
+            label="Nome completo"
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Digite seu nome completo"
+            required
+          />
 
-          <div className="form-group">
-            <label htmlFor="email">E-mail</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Digite seu e-mail"
-              required
-            />
-          </div>
+          <CoolInput
+            label="E-mail"
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Digite seu e-mail"
+            required
+          />
 
-          <div className="form-group">
-            <label htmlFor="cpf">CPF</label>
-            <input
-              type="text"
-              id="cpf"
-              name="cpf"
-              value={formData.cpf}
-              onChange={handleChange}
-              placeholder="Digite seu CPF"
-              inputMode="numeric"
-              maxLength={14}
-              required
-            />
-          </div>
+          <CoolInput
+            label="CPF"
+            type="text"
+            id="cpf"
+            name="cpf"
+            value={formData.cpf}
+            onChange={handleChange}
+            placeholder="Digite seu CPF"
+            inputMode="numeric"
+            maxLength={14}
+            required
+          />
 
-          <div className="form-group">
-            <label htmlFor="phone">Telefone</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="Digite seu telefone"
-              inputMode="tel"
-              maxLength={15}
-              required
-            />
-          </div>
+          <CoolInput
+            label="Telefone"
+            type="tel"
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            placeholder="Digite seu telefone"
+            inputMode="tel"
+            maxLength={15}
+            required
+          />
 
-          <div className="form-group">
-            <label htmlFor="password">Senha</label>
-            <div className="password-input-container">
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Digite sua senha"
-                required
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={togglePasswordVisibility}
-                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-              >
-                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-              </button>
-            </div>
-          </div>
+          <PasswordInput
+            label="Senha"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Digite sua senha"
+            required
+          />
 
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirmar senha</label>
-            <div className="password-input-container">
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirme sua senha"
-                required
-              />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={toggleConfirmPasswordVisibility}
-                aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
-              >
-                {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
-              </button>
-            </div>
-          </div>
+          <PasswordInput
+            label="Confirmar senha"
+            id="confirmPassword"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            placeholder="Confirme sua senha"
+            required
+          />
 
           {error && <p style={{ color: '#b91c1c', margin: 0 }}>{error}</p>}
 
