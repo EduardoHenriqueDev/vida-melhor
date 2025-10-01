@@ -1,65 +1,60 @@
 .home-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid #e5e7eb;
-  background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: #ffffff;
 }
 
 .home-left {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .welcome {
-  color: #1f2937;
-  font-weight: 600;
+    color: #1f2937;
+    font-weight: 600;
 }
 
 .menu-button {
-  background: none;
-  border: none;
-  padding: 0.25rem;
-  cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    font-size: 1.25rem;
+    cursor: pointer;
 }
 
 .menu-button .icon {
-  width: 32px;
-  height: 32px;
+    width: 50px;
+    height: 50px;
 }
 
 .menu-button:hover {
-  background: transparent;
+    background: transparent;
 }
 
 .signout-button {
-  background: var(--primary-color);
-  color: #fff;
-  border: none;
-  padding: 0.5rem 0.875rem;
-  font-size: 0.9rem;
-  border-radius: 6px;
-  cursor: pointer;
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
 }
 
 .signout-button:hover {
-  background: var(--primary-hover);
+    background: var(--primary-hover);
 }
 
 .menu-wrap {
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 }
 
 /* override hamburger stroke color to primary for contrast on white */
 .menu-wrap .line {
-  stroke: var(--primary-color);
-}
-
-.icon-button svg {
-  width: 32px;
-  height: 32px;
-  color: var(--primary-color);
+    stroke: var(--primary-color);
 }
