@@ -1,3 +1,69 @@
+.register-role-radio {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--primary-color);
+  border-radius: 50%;
+  background: #fff;
+  margin: 0;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.register-role-radio:checked {
+  background-color: var(--primary-light);
+  border-color: var(--primary-color);
+}
+
+.register-role-radio:after {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.2s;
+}
+
+.register-role-radio:checked:after {
+  transform: translate(-50%, -50%) scale(1);
+}
+/* Estilização customizada para radio de tipo de usuário */
+.register-role-group {
+  margin-top: 12px;
+  display: flex;
+  gap: 2rem;
+}
+
+.register-role-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0 3px;
+  background: #fff;
+  width: fit-content;
+}
+
+
+.role-radio-label .role-radio-input:checked + .role-radio-custom {
+  box-shadow: 0 0 0 3px var(--primary-color);
+    accent-color: var(--primary-color);
+    width: 20px;
+    height: 20px;
+    margin: 0 4px 0 0;
+    cursor: pointer;
+}
 .register-container {
   min-height: 100vh;
   display: flex;
@@ -39,42 +105,15 @@
   gap: 1.5rem;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  width: 100%;
+.role-radio-input {
+  accent-color: var(--primary-color);
+  width: 20px;
+  height: 20px;
+  margin: 0 4px 0 0;
+  cursor: pointer;
   position: static;
+  z-index: auto;
 }
-
-.form-group label {
-  font-weight: 700;
-  color: var(--primary-color);
-  font-size: 0.75rem;
-  position: relative;
-  top: 0.5rem;
-  margin: 0 0 0 7px;
-  padding: 0 3px;
-  background: #ffffff;
-  width: fit-content;
-}
-
-.form-group input {
-  padding: 11px 10px;
-  border: 2px var(--primary-color) solid;
-  border-radius: 5px;
-  font-size: 0.75rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  width: 100%;
-  background: #ffffff;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px var(--primary-light);
-}
-
 .password-input-container {
   position: relative;
 }
