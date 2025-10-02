@@ -5,18 +5,19 @@ import Navbar from '../../components/Navbar/Navbar'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import './Home.css'
 import SearchBar from '../../components/SearchBar/SearchBar'
-import { FaClinicMedical, FaCalendarAlt, FaPills } from 'react-icons/fa'
+import { FaClinicMedical, FaCalendarAlt, FaPills, FaUser } from 'react-icons/fa'
 import CartIcon from '../../components/CartIcon/CartIcon'
 import { MdEmergency } from 'react-icons/md' // + emergency icon
 
 interface HomeProps {
   onSignOut: () => void
-  onNavigate: (page: 'home' | 'profile') => void // + navigation cb
+  onNavigate: (page: 'home' | 'profile' | 'cuidador') => void // + navigation cb
 }
 
 const Home = ({ onSignOut, onNavigate }: HomeProps) => {
   const [displayName, setDisplayName] = useState<string>('')
   const [open, setOpen] = useState(false)
+  const [isCarer, setIsCarer] = useState(false)
 
   useEffect(() => {
     const loadUser = async () => {
@@ -24,6 +25,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       const user = data.user
       const name = (user?.user_metadata as any)?.name as string | undefined
       setDisplayName(name || user?.email || 'Usuário')
+      setIsCarer(!!(user?.user_metadata as any)?.carer)
     }
     loadUser()
   }, [])
@@ -81,6 +83,16 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
           <span>Medicamentos</span>
         </button>
       </div>
+
+      {/* Botão Cuidador, se for cuidador */}
+      {isCarer && (
+        <div className="home-emergency">
+          <button type="button" className="home-action-button carer" aria-label="Cuidador" onClick={() => onNavigate('cuidador')}>
+            <FaUser className="icon" />
+            <span>Cuidador</span>
+          </button>
+        </div>
+      )}
 
       {/* Botão de Emergência */}
       <div className="home-emergency">
