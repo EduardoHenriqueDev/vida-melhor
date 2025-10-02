@@ -4,12 +4,17 @@ import { signOut } from '../../services/authService'
 import Navbar from '../../components/Navbar/Navbar'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import './Home.css'
+import SearchBar from '../../components/SearchBar/SearchBar'
+import { FaClinicMedical, FaCalendarAlt, FaPills } from 'react-icons/fa'
+import CartIcon from '../../components/CartIcon/CartIcon'
+import { MdEmergency } from 'react-icons/md' // + emergency icon
 
 interface HomeProps {
   onSignOut: () => void
+  onNavigate: (page: 'home' | 'profile') => void // + navigation cb
 }
 
-const Home = ({ onSignOut }: HomeProps) => {
+const Home = ({ onSignOut, onNavigate }: HomeProps) => {
   const [displayName, setDisplayName] = useState<string>('')
   const [open, setOpen] = useState(false)
 
@@ -23,6 +28,21 @@ const Home = ({ onSignOut }: HomeProps) => {
     loadUser()
   }, [])
 
+  useEffect(() => {
+    const ensureSession = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
+        if (!session) onSignOut()
+      } catch (e) {
+        console.error('Erro verificando sessão (Home):', e)
+        onSignOut()
+      }
+    }
+    ensureSession()
+  }, [onSignOut])
+
   const handleSignOut = async () => {
     await signOut()
     onSignOut()
@@ -30,14 +50,53 @@ const Home = ({ onSignOut }: HomeProps) => {
 
   return (
     <div className="home-container">
-      <Navbar displayName={displayName} onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} />
+      <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} />
 
-      <Sidebar open={open} displayName={displayName} onClose={() => setOpen(false)} onSignOut={handleSignOut} />
+      <div className="home-welcome">
+        <span className="welcome">Bem-vindo, {displayName}</span>
+        <CartIcon />
+      </div>
 
-      <main className="home-main">
-        <h2 className="home-title">Bem-vindo, {displayName}</h2>
-        <p className="home-subtitle">Você está logado.</p>
-      </main>
+      <div className="home-toolbar">
+        <SearchBar />
+      </div>
+
+      {/* Banner abaixo da searchbar */}
+      <div className="home-banner">
+        <img src="/banner.png" alt="Banner" />
+      </div>
+
+      {/* Grupo de 3 botões */}
+      <div className="home-actions">
+        <button type="button" className="home-action-button primary" aria-label="Farmácias">
+          <FaClinicMedical className="icon" />
+          <span>Farmácias</span>
+        </button>
+        <button type="button" className="home-action-button" aria-label="Consultas">
+          <FaCalendarAlt className="icon" />
+          <span>Consultas</span>
+        </button>
+        <button type="button" className="home-action-button" aria-label="Medicamentos">
+          <FaPills className="icon" />
+          <span>Medicamentos</span>
+        </button>
+      </div>
+
+      {/* Botão de Emergência */}
+      <div className="home-emergency">
+        <button type="button" className="home-action-button emergency" aria-label="Emergência">
+          <MdEmergency className="icon" />
+          <span>Emergência</span>
+        </button>
+      </div>
+
+      <Sidebar
+        open={open}
+        displayName={displayName}
+        onClose={() => setOpen(false)}
+        onSignOut={handleSignOut}
+        onNavigate={onNavigate} // + pass down
+      />
     </div>
   )
 }

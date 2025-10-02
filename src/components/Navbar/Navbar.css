@@ -18,6 +18,21 @@
     font-weight: 600;
 }
 
+/* md+ */
+@media (min-width: 768px) {
+  .welcome { font-size: 1.05rem; }
+}
+
+/* lg+ */
+@media (min-width: 1024px) {
+  .welcome { font-size: 1.15rem; }
+}
+
+/* xl+ */
+@media (min-width: 1280px) {
+  .welcome { font-size: 1.25rem; }
+}
+
 .menu-button {
     background: none;
     border: none;
@@ -27,8 +42,8 @@
 }
 
 .menu-button .icon {
-    width: 50px;
-    height: 50px;
+    width: 30px;
+    height: 30px;
 }
 
 .menu-button:hover {
@@ -57,4 +72,11 @@
 /* override hamburger stroke color to primary for contrast on white */
 .menu-wrap .line {
     stroke: var(--primary-color);
+}
+
+/* logo exibida no Navbar no lugar do texto */
+.nav-logo {
+    height: 32px;
+    width: auto;
+    display: block;
 }
