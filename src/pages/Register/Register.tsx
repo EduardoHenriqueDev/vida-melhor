@@ -39,14 +39,15 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
     cpf: '',
     phone: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'idoso' // 'idoso' ou 'cuidador'
   })
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value, type } = e.target
     let next = value
     if (name === 'cpf') next = maskCPF(value)
     if (name === 'phone') next = maskPhone(value)
@@ -54,6 +55,13 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
     setFormData(prev => ({
       ...prev,
       [name]: next
+    }))
+  }
+
+  const handleRoleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      role: e.target.value
     }))
   }
 
@@ -74,6 +82,7 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
         cpf: formData.cpf.replace(/\D/g, ''),
         phone: formData.phone.replace(/\D/g, ''),
         password: formData.password,
+        carer: formData.role === 'cuidador',
       })
       // eslint-disable-next-line no-alert
       alert('Cadastro realizado com sucesso! Faça login para continuar.')
@@ -92,7 +101,7 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
           <img src="/logo.png" alt="Logo" className="app-logo" />
           <p>Crie sua conta</p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="register-form">
           <CoolInput
             label="Nome completo"
@@ -161,6 +170,34 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
             placeholder="Confirme sua senha"
             required
           />
+
+          {/* Checkbox de tipo de usuário */}
+          <div className="register-role-group">
+            <label className="register-role-label">
+              <input
+                type="radio"
+                name="role"
+                value="idoso"
+                checked={formData.role === 'idoso'}
+                onChange={handleRoleChange}
+                id="idoso"
+                className="register-role-radio"
+              />
+              Idoso/Responsável
+            </label>
+            <label className="register-role-label">
+              <input
+                type="radio"
+                name="role"
+                value="cuidador"
+                checked={formData.role === 'cuidador'}
+                onChange={handleRoleChange}
+                id="cuidador"
+                className="register-role-radio"
+              />
+              Cuidador
+            </label>
+          </div>
 
           {error && <p style={{ color: '#b91c1c', margin: 0 }}>{error}</p>}
 

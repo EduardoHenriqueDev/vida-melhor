@@ -6,18 +6,19 @@ export type SignUpInput = {
   password: string
   cpf: string
   phone: string
+  carer: boolean
 }
 
 const PENDING_PROFILE_KEY = 'supabase_pending_profile'
 
 export async function signUpWithProfile(input: SignUpInput) {
-  const { name, email, password, cpf, phone } = input
+  const { name, email, password, cpf, phone, carer } = input
 
   const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { name, cpf, phone },
+      data: { name, cpf, phone, carer },
     },
   })
   if (signUpError) throw signUpError
@@ -28,14 +29,14 @@ export async function signUpWithProfile(input: SignUpInput) {
   if (userId && hasSession) {
     const { error: insertError } = await supabase
       .from('users')
-      .upsert({ id: userId, name, email, cpf, phone })
+      .upsert({ id: userId, name, email, cpf, phone, carer })
     if (insertError) throw insertError
   } else {
     // salva perfil pendente para criar após a confirmação e primeiro login
     try {
       localStorage.setItem(
         PENDING_PROFILE_KEY,
-        JSON.stringify({ id: userId, name, email, cpf, phone })
+        JSON.stringify({ id: userId, name, email, cpf, phone, carer })
       )
     } catch {}
   }
