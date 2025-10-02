@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { CoolInput, PasswordInput } from '../../components/CoolInput/CoolInput'
-import { signUpWithProfile } from '../../services/authService'
+import { signUpWithProfile, ensureUserProfile } from '../../services/authService'
 import './Register.css'
 
 // Máscaras de CPF e Telefone
@@ -75,6 +75,7 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
         phone: formData.phone.replace(/\D/g, ''),
         password: formData.password,
       })
+      await ensureUserProfile()
       // eslint-disable-next-line no-alert
       alert('Cadastro realizado com sucesso! Faça login para continuar.')
       onSwitchToLogin()

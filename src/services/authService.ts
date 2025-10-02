@@ -11,33 +11,41 @@ export type SignUpInput = {
 const PENDING_PROFILE_KEY = 'supabase_pending_profile'
 
 export async function signUpWithProfile(input: SignUpInput) {
-  const { name, email, password, cpf, phone } = input
+  const cleanName = input.name.trim()
+  const cleanCpf = input.cpf.replace(/\D/g, '')
+  const cleanPhone = input.phone.replace(/\D/g, '')
+  const { email, password } = input
 
   const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { name, cpf, phone },
+      data: { name: cleanName, cpf: cleanCpf, phone: cleanPhone },
     },
   })
   if (signUpError) throw signUpError
 
   const userId = signUpData.user?.id
-  const hasSession = !!signUpData.session
+  let upserted = false
 
-  if (userId && hasSession) {
+  if (userId) {
+    // tenta criar/atualizar o perfil imediatamente
     const { error: insertError } = await supabase
       .from('users')
-      .upsert({ id: userId, name, email, cpf, phone })
-    if (insertError) throw insertError
-  } else {
+      .upsert({ id: userId, name: cleanName, email, cpf: cleanCpf, phone: cleanPhone })
+    upserted = !insertError
+  }
+
+  if (!upserted) {
     // salva perfil pendente para criar após a confirmação e primeiro login
     try {
       localStorage.setItem(
         PENDING_PROFILE_KEY,
-        JSON.stringify({ id: userId, name, email, cpf, phone })
+        JSON.stringify({ id: userId, name: cleanName, email, cpf: cleanCpf, phone: cleanPhone })
       )
     } catch {}
+  } else {
+    try { localStorage.removeItem(PENDING_PROFILE_KEY) } catch {}
   }
 
   return signUpData
@@ -48,43 +56,45 @@ export async function ensureUserProfile() {
   const user = userResp?.user
   if (!user) return
 
-  // Verifica se já existe
+  // Fetch existing to merge values (avoid blanking fields)
   const { data: existing } = await supabase
     .from('users')
-    .select('id')
+    .select('id, name, email, cpf, phone')
     .eq('id', user.id)
     .maybeSingle()
 
-  if (existing) return
-
-  // Monta dados a partir do metadata e fallback do localStorage
-  let name = (user.user_metadata as any)?.name || ''
-  let cpf = (user.user_metadata as any)?.cpf || ''
-  let phone = (user.user_metadata as any)?.phone || ''
-
+  // Prefer inputs saved at sign-up (localStorage), then metadata
+  let pending: Partial<{ name: string; cpf: string; phone: string }> = {}
   try {
     const raw = localStorage.getItem(PENDING_PROFILE_KEY)
-    if (raw) {
-      const pending = JSON.parse(raw)
-      name = name || pending?.name || ''
-      cpf = cpf || pending?.cpf || ''
-      phone = phone || pending?.phone || ''
-    }
+    if (raw) pending = JSON.parse(raw) ?? {}
   } catch {}
 
-  const email = user.email || ''
+  const meta = (user.user_metadata as any) || {}
 
-  if (!name && !cpf && !phone) {
-    // Sem dados suficientes, não tenta criar
-    return
+  const inputName = (pending.name ?? '').toString().trim()
+  const inputCpf = (pending.cpf ?? '').toString().replace(/\D/g, '')
+  const inputPhone = (pending.phone ?? '').toString().replace(/\D/g, '')
+
+  const metaName = (meta.name ?? '').toString().trim()
+  const metaCpf = (meta.cpf ?? '').toString().replace(/\D/g, '')
+  const metaPhone = (meta.phone ?? '').toString().replace(/\D/g, '')
+
+  // Build payload prioritizing: inputs > metadata > existing
+  const payload = {
+    id: user.id,
+    name: inputName || metaName || existing?.name || '',
+    email: user.email || existing?.email || '',
+    cpf: inputCpf || metaCpf || existing?.cpf || '',
+    phone: inputPhone || metaPhone || existing?.phone || '',
   }
 
-  const { error: upsertError } = await supabase
-    .from('users')
-    .upsert({ id: user.id, name, email, cpf, phone })
+  const { error: upsertError } = await supabase.from('users').upsert(payload)
 
   if (!upsertError) {
-    try { localStorage.removeItem(PENDING_PROFILE_KEY) } catch {}
+    try {
+      localStorage.removeItem(PENDING_PROFILE_KEY)
+    } catch {}
   }
 }
 
