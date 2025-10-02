@@ -34,11 +34,8 @@
 
 .home-toolbar {
   padding: 0;
-  /* remove inner spacing so input can be full width */
   display: block;
-  /* let child define layout */
   width: 100%;
-  /* full viewport width */
   margin: 0 auto;
   overflow-x: hidden;
   border: none;
@@ -67,7 +64,7 @@
 
 .home-banner {
   width: calc(100% - 2rem);
-  margin: 0.5rem auto 0;
+  margin: 3rem auto;
   overflow: hidden;
   border-radius: 12px;
   display: flex;
@@ -262,7 +259,7 @@
 
 .home-emergency {
   width: min(100% - 2rem, 960px);
-  margin: 0.75rem auto 0;
+  margin: 3rem auto;
 }
 
 .home-emergency .home-action-button.emergency {

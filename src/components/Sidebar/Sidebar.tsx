@@ -8,7 +8,7 @@ interface SidebarProps {
   displayName: string
   onClose: () => void
   onSignOut: () => void
-  onNavigate?: (page: 'home' | 'profile') => void // + navigation callback
+  onNavigate?: (page: 'home' | 'profile' | 'pharmacies') => void // + navigation callback
 }
 
 const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate }: SidebarProps) => {
@@ -71,7 +71,13 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate }: SidebarP
               Perfil
             </a>
             <a href="#" className="sidebar-link" onClick={onClose}>Medicamentos</a>
-            <a href="#" className="sidebar-link" onClick={onClose}>Farmácias</a>
+            <a
+              href="#"
+              className="sidebar-link"
+              onClick={(e) => { e.preventDefault(); onNavigate?.('pharmacies'); onClose(); }}
+            >
+              Farmácias
+            </a>
             <a href="#" className="sidebar-link" onClick={onClose}>Consultas</a>
           </nav>
         </div>

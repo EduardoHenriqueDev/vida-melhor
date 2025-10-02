@@ -1,0 +1,128 @@
+.pharmacies-container {
+  min-height: 100vh;
+  background: #fff;
+  padding: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.pharmacies-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.back-button {
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background: #f9fafb;
+}
+
+.title {
+  margin: 0 0 1rem 0;
+  color: #111827;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.name {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #111827;
+}
+
+.status {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+}
+.status.active { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+.status.inactive { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+
+.address, .contact, .email {
+  margin: 0.5rem 0 0 0;
+  color: #374151;
+}
+
+.badge {
+  margin-left: 0.5rem;
+  font-size: 0.7rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 6px;
+}
+.badge.verified { background: #ecfdf5; color: #065f46; }
+.badge.unverified { background: #fef2f2; color: #991b1b; }
+
+.meta {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 1rem;
+  color: #6b7280;
+}
+
+.error { color: #b91c1c; }
+.small {
+  font-size: 0.875rem;
+}
+
+.pharmacies-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .pharmacies-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .pharmacies-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.pharmacy-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.pharmacy-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.back-icon-btn {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  cursor: pointer;
+  color: #111827;
+}
+.back-icon-btn:hover { opacity: 0.8; }

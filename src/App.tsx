@@ -6,9 +6,10 @@ import './App.css'
 import { supabase } from './lib/supabaseClient'
 import { ensureUserProfile } from './services/authService'
 import Profile from './pages/Profile/Profile'
+import Pharmacies from './pages/Pharmacies/Pharmacies'
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<'login' | 'register' | 'home' | 'profile'>('login')
+  const [currentPage, setCurrentPage] = useState<'login' | 'register' | 'home' | 'profile' | 'pharmacies'>('login')
   const [bootstrapped, setBootstrapped] = useState(false)
 
   useEffect(() => {
@@ -47,7 +48,7 @@ function App() {
   const handleSwitchToLogin = () => setCurrentPage('login')
   const handleLoginSuccess = () => setCurrentPage('home')
   const handleSignOut = () => setCurrentPage('login')
-  const handleNavigate = (page: 'home' | 'profile') => setCurrentPage(page)
+  const handleNavigate = (page: 'home' | 'profile' | 'pharmacies') => setCurrentPage(page)
 
   // loading simples para evitar tela branca
   if (!bootstrapped) {
@@ -71,6 +72,9 @@ function App() {
       )}
       {currentPage === 'profile' && (
         <Profile onSignOut={handleSignOut} onNavigate={handleNavigate} />
+      )}
+      {currentPage === 'pharmacies' && (
+        <Pharmacies onBack={() => setCurrentPage('home')} />
       )}
     </div>
   )

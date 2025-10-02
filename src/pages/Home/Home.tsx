@@ -11,7 +11,7 @@ import { MdEmergency } from 'react-icons/md' // + emergency icon
 
 interface HomeProps {
   onSignOut: () => void
-  onNavigate: (page: 'home' | 'profile') => void // + navigation cb
+  onNavigate: (page: 'home' | 'profile' | 'pharmacies') => void // + navigation cb
 }
 
 const Home = ({ onSignOut, onNavigate }: HomeProps) => {
@@ -68,7 +68,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
 
       {/* Grupo de 3 botões */}
       <div className="home-actions">
-        <button type="button" className="home-action-button primary" aria-label="Farmácias">
+        <button type="button" className="home-action-button primary" aria-label="Farmácias" onClick={() => onNavigate('pharmacies')}>
           <FaClinicMedical className="icon" />
           <span>Farmácias</span>
         </button>
