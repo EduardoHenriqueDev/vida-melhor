@@ -47,7 +47,7 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
   const [error, setError] = useState<string | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type } = e.target
+    const { name, value } = e.target
     let next = value
     if (name === 'cpf') next = maskCPF(value)
     if (name === 'phone') next = maskPhone(value)

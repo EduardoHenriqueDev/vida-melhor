@@ -6,7 +6,7 @@ import { signOut } from '../../services/authService'
 
 interface ProfileProps {
   onSignOut: () => void
-  onNavigate: (page: 'home' | 'profile' | 'pharmacies') => void
+  onNavigate: (page: 'home' | 'profile' | 'pharmacies' | 'medications' | 'cuidador') => void
 }
 
 const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
