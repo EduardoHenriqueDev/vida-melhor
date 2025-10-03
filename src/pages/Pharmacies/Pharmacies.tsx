@@ -5,12 +5,14 @@ import Navbar from '../../components/Navbar/Navbar'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import { supabase } from '../../lib/supabaseClient'
 import { signOut } from '../../services/authService'
+import Loading from '../../components/Loading/Loading' // + loading
 
 interface PharmaciesProps {
   onBack?: () => void
+  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'medications') => void
 }
 
-const Pharmacies = ({ onBack }: PharmaciesProps) => {
+const Pharmacies = ({ onBack, onNavigate }: PharmaciesProps) => {
   const [items, setItems] = useState<Pharmacy[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -50,13 +52,24 @@ const Pharmacies = ({ onBack }: PharmaciesProps) => {
     else window.history.back()
   }
 
-  if (loading) return <div className="pharmacies-container">Carregando...</div>
+  if (loading) return (
+    <div className="pharmacies-container">
+      <Loading fullPage />
+    </div>
+  )
   if (error) return <div className="pharmacies-container error">{error}</div>
 
   return (
     <div className="pharmacies-container">
       <Navbar displayName={displayName} onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} />
-      <Sidebar open={open} displayName={displayName} onClose={() => setOpen(false)} onSignOut={handleSignOut} />
+      <Sidebar
+        open={open}
+        displayName={displayName}
+        onClose={() => setOpen(false)}
+        onSignOut={handleSignOut}
+        onNavigate={onNavigate}
+        activePage="pharmacies" // + highlight Pharmacies
+      />
 
       <div className="pharmacies-header">
         <button type="button" className="back-icon-btn" onClick={handleBack} aria-label="Voltar">

@@ -7,16 +7,18 @@ import './Home.css'
 import SearchBar from '../../components/SearchBar/SearchBar'
 import { FaClinicMedical, FaCalendarAlt, FaPills } from 'react-icons/fa'
 import CartIcon from '../../components/CartIcon/CartIcon'
-import { MdEmergency } from 'react-icons/md' // + emergency icon
+import { MdEmergency } from 'react-icons/md'
+import { useCart } from '../../contexts/CartContext' // + cart
 
 interface HomeProps {
   onSignOut: () => void
-  onNavigate: (page: 'home' | 'profile' | 'pharmacies') => void // + navigation cb
+  onNavigate: (page: 'home' | 'profile' | 'pharmacies' | 'medications') => void
 }
 
 const Home = ({ onSignOut, onNavigate }: HomeProps) => {
   const [displayName, setDisplayName] = useState<string>('')
   const [open, setOpen] = useState(false)
+  const { count } = useCart() // + cart count
 
   useEffect(() => {
     const loadUser = async () => {
@@ -54,7 +56,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
 
       <div className="home-welcome">
         <span className="welcome">Bem-vindo, {displayName}</span>
-        <CartIcon />
+        <CartIcon count={count} /> {/* + show count */}
       </div>
 
       <div className="home-toolbar">
@@ -76,7 +78,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
           <FaCalendarAlt className="icon" />
           <span>Consultas</span>
         </button>
-        <button type="button" className="home-action-button" aria-label="Medicamentos">
+        <button type="button" className="home-action-button" aria-label="Medicamentos" onClick={() => onNavigate('medications')}>
           <FaPills className="icon" />
           <span>Medicamentos</span>
         </button>
@@ -95,7 +97,8 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
         displayName={displayName}
         onClose={() => setOpen(false)}
         onSignOut={handleSignOut}
-        onNavigate={onNavigate} // + pass down
+        onNavigate={onNavigate}
+        activePage="home" // + highlight Home
       />
     </div>
   )

@@ -1,16 +1,19 @@
 .pharmacies-container {
   min-height: 100vh;
   background: #fff;
-  padding: 1rem;
+  padding: 0; /* removed global padding to avoid affecting Navbar */
   max-width: 1100px;
   margin: 0 auto;
 }
 
+/* Header gets its own horizontal gutters */
 .pharmacies-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
+  justify-content: flex-start; /* was: space-between */
+  gap: 0.5rem;                 /* add small space between back button and title */
+  margin: 0 auto 0.75rem;
+  width: calc(100% - 2rem);
 }
 
 .back-button {
@@ -30,10 +33,13 @@
   color: #111827;
 }
 
+/* Grid gets its own horizontal gutters */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
+  width: calc(100% - 2rem);
+  margin: 0 auto;
 }
 
 .card {

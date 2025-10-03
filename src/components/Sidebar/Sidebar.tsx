@@ -8,10 +8,11 @@ interface SidebarProps {
   displayName: string
   onClose: () => void
   onSignOut: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'pharmacies') => void // + navigation callback
+  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'medications') => void
+  activePage?: 'home' | 'profile' | 'pharmacies' | 'medications' // + active page
 }
 
-const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate }: SidebarProps) => {
+const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage }: SidebarProps) => {
   const [name, setName] = useState<string>(displayName)
   const [email, setEmail] = useState<string>('')
 
@@ -58,22 +59,28 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate }: SidebarP
           <nav className="sidebar-nav" aria-label="Menu lateral">
             <a
               href="#"
-              className="sidebar-link"
+              className={`sidebar-link ${activePage === 'home' ? 'active' : ''}`}
               onClick={(e) => { e.preventDefault(); onNavigate?.('home'); onClose(); }}
             >
               Home
             </a>
             <a
               href="#"
-              className="sidebar-link"
+              className={`sidebar-link ${activePage === 'profile' ? 'active' : ''}`}
               onClick={(e) => { e.preventDefault(); onNavigate?.('profile'); onClose(); }}
             >
               Perfil
             </a>
-            <a href="#" className="sidebar-link" onClick={onClose}>Medicamentos</a>
             <a
               href="#"
-              className="sidebar-link"
+              className={`sidebar-link ${activePage === 'medications' ? 'active' : ''}`}
+              onClick={(e) => { e.preventDefault(); onNavigate?.('medications'); onClose(); }}
+            >
+              Medicamentos
+            </a>
+            <a
+              href="#"
+              className={`sidebar-link ${activePage === 'pharmacies' ? 'active' : ''}`}
               onClick={(e) => { e.preventDefault(); onNavigate?.('pharmacies'); onClose(); }}
             >
               Farmácias
