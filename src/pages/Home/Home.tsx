@@ -8,7 +8,7 @@ import SearchBar from '../../components/SearchBar/SearchBar'
 import { FaClinicMedical, FaCalendarAlt, FaPills } from 'react-icons/fa'
 import CartIcon from '../../components/CartIcon/CartIcon'
 import { MdEmergency } from 'react-icons/md'
-import { useCart } from '../../contexts/CartContext' // + cart
+import { useCart } from '../../contexts/CartContext'
 
 interface HomeProps {
   onSignOut: () => void
@@ -55,20 +55,21 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} />
 
       <div className="home-welcome">
-        <span className="welcome">Bem-vindo, {displayName}</span>
-        <CartIcon count={count} /> {/* + show count */}
+        <div className="welcome">
+          <span className="welcome-top">Bem-vindo(a),</span>
+          <span className="welcome-name">{displayName}</span>
+        </div>
+        <CartIcon count={count} />
       </div>
 
       <div className="home-toolbar">
         <SearchBar />
       </div>
 
-      {/* Banner abaixo da searchbar */}
       <div className="home-banner">
         <img src="/banner.png" alt="Banner" />
       </div>
 
-      {/* Grupo de 3 botões */}
       <div className="home-actions">
         <button type="button" className="home-action-button primary" aria-label="Farmácias" onClick={() => onNavigate('pharmacies')}>
           <FaClinicMedical className="icon" />
@@ -84,7 +85,6 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
         </button>
       </div>
 
-      {/* Botão de Emergência */}
       <div className="home-emergency">
         <button type="button" className="home-action-button emergency" aria-label="Emergência">
           <MdEmergency className="icon" />
@@ -98,7 +98,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
         onClose={() => setOpen(false)}
         onSignOut={handleSignOut}
         onNavigate={onNavigate}
-        activePage="home" // + highlight Home
+        activePage="home"
       />
     </div>
   )

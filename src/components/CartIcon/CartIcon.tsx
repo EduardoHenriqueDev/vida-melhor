@@ -23,14 +23,14 @@ const Button = styled.button`
   }
 
   svg {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
   }
 
   @media (min-width: 768px) {
     svg {
-      width: 1.75rem;
-      height: 1.75rem;
+      width: 3rem;
+      height: 3rem;
     }
   }
 `
@@ -51,8 +51,8 @@ const Badge = styled.span`
   font-size: 0.65rem;
   font-weight: 700;
   line-height: 1;
-  border: 2px solid #fff; /* ring para destacar sobre o ícone */
-  pointer-events: none; /* não bloqueia clique no botão */
+  border: 2px solid #fff;
+  pointer-events: none;
   box-shadow: 0 1px 2px rgba(0,0,0,0.15);
 
   @media (min-width: 768px) {
