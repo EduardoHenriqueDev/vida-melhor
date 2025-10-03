@@ -6,7 +6,7 @@ import { signOut } from '../../services/authService'
 
 interface ProfileProps {
   onSignOut: () => void
-  onNavigate: (page: 'home' | 'profile') => void
+  onNavigate: (page: 'home' | 'profile' | 'pharmacies') => void
 }
 
 const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
@@ -123,6 +123,7 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
         onClose={() => setOpen(false)}
         onSignOut={handleSignOut}
         onNavigate={onNavigate}
+        activePage="profile" // + highlight Profile
       />
     </div>
   )

@@ -7,9 +7,13 @@ import { supabase } from './lib/supabaseClient'
 import { ensureUserProfile } from './services/authService'
 import Profile from './pages/Profile/Profile'
 import CuidadorPage from './pages/CuidadorPage/CuidadorPage'
+import Pharmacies from './pages/Pharmacies/Pharmacies'
+import Medications from './pages/Medications/Medications'
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<'login' | 'register' | 'home' | 'profile' | 'cuidador'>('login')
+  const [currentPage, setCurrentPage] = useState<
+    'login' | 'register' | 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications'
+  >('login')
   const [bootstrapped, setBootstrapped] = useState(false)
 
   useEffect(() => {
@@ -17,7 +21,6 @@ function App() {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         if (session) {
-          // não bloqueia a UI carregando perfil
           ensureUserProfile().catch(console.error)
         }
         setCurrentPage(session ? 'home' : 'login')
@@ -48,13 +51,15 @@ function App() {
   const handleSwitchToLogin = () => setCurrentPage('login')
   const handleLoginSuccess = () => setCurrentPage('home')
   const handleSignOut = () => setCurrentPage('login')
-  const handleNavigate = (page: 'home' | 'profile' | 'cuidador') => setCurrentPage(page)
+  const handleNavigate = (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications') =>
+    setCurrentPage(page)
 
-  // loading simples para evitar tela branca
   if (!bootstrapped) {
     return (
       <div className="app">
-        <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>Carregando...</div>
+        <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+          Carregando...
+        </div>
       </div>
     )
   }
@@ -75,6 +80,12 @@ function App() {
       )}
       {currentPage === 'cuidador' && (
         <CuidadorPage onSignOut={handleSignOut} onNavigate={handleNavigate} />
+      )}
+      {currentPage === 'pharmacies' && (
+        <Pharmacies onBack={() => setCurrentPage('home')} onNavigate={handleNavigate} />
+      )}
+      {currentPage === 'medications' && (
+        <Medications onBack={() => setCurrentPage('home')} onNavigate={handleNavigate} />
       )}
     </div>
   )

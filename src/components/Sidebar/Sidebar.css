@@ -72,6 +72,21 @@
 .sidebar-link:hover {
   background-color: #f3f4f6;
   color: #111827;
+  box-shadow: inset 0 -2px 0 var(--secondary-color); /* subtle secondary accent */
+}
+.sidebar-link.active {
+  color: var(--primary-color);
+  font-weight: 700;
+  position: relative;
+}
+
+.sidebar-link.active::after {
+  content: '';
+  display: block;
+  height: 2px;
+  background: var(--primary-color);
+  border-radius: 2px;
+  margin-top: 4px;
 }
 
 /* footer fixado no fim */

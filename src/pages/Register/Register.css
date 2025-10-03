@@ -34,7 +34,7 @@
 .register-role-radio:checked:after {
   transform: translate(-50%, -50%) scale(1);
 }
-/* Estilização customizada para radio de tipo de usuário */
+
 .register-role-group {
   margin-top: 12px;
   display: flex;
@@ -56,14 +56,15 @@
 }
 
 
-.role-radio-label .role-radio-input:checked + .role-radio-custom {
+.role-radio-label .role-radio-input:checked+.role-radio-custom {
   box-shadow: 0 0 0 3px var(--primary-color);
-    accent-color: var(--primary-color);
-    width: 20px;
-    height: 20px;
-    margin: 0 4px 0 0;
-    cursor: pointer;
+  accent-color: var(--primary-color);
+  width: 20px;
+  height: 20px;
+  margin: 0 4px 0 0;
+  cursor: pointer;
 }
+
 .register-container {
   min-height: 100vh;
   display: flex;
@@ -77,7 +78,6 @@
   background: white;
   padding: 2.5rem;
   border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   width: 100%;
   max-width: 400px;
 }
@@ -114,13 +114,15 @@
   position: static;
   z-index: auto;
 }
+
 .password-input-container {
   position: relative;
 }
 
 .password-input-container input {
   padding-right: 3rem;
-  width: 100%; /* Garante que o input ocupe 100% da largura */
+  width: 100%;
+  /* Garante que o input ocupe 100% da largura */
 }
 
 .password-toggle {
@@ -138,7 +140,8 @@
   justify-content: center;
   border-radius: 4px;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-  z-index: 2; /* Garante que o ícone fique por cima do input */
+  z-index: 2;
+  /* Garante que o ícone fique por cima do input */
 }
 
 .password-toggle:hover {
