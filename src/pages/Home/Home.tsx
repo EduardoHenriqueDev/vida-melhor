@@ -148,6 +148,12 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       </div>
 
       <div className="home-bottom">
+        <div className="home-emergency">
+          <button type="button" className="home-action-button emergency" aria-label="Emergência">
+            <MdEmergency className="icon" />
+            <span>Emergência</span>
+          </button>
+        </div>
         <div className="home-actions">
           <button
             type="button"
@@ -172,7 +178,6 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
             <span>Medicamentos</span>
           </button>
         </div>
-
         {isCarer && (
           <div className="home-carer">
             <button
@@ -186,13 +191,6 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
             </button>
           </div>
         )}
-
-        <div className="home-emergency">
-          <button type="button" className="home-action-button emergency" aria-label="Emergência">
-            <MdEmergency className="icon" />
-            <span>Emergência</span>
-          </button>
-        </div>
       </div>
 
       <Sidebar
