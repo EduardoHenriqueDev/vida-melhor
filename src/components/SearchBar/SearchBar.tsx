@@ -15,7 +15,7 @@ const Bar = styled.div`
 
 const Input = styled.input`
   width: 100%;
-  padding: clamp(0.75rem, 2.5vw, 1rem) 3.5rem clamp(0.75rem, 2.5vw, 1rem) 1rem;
+  padding: clamp(1rem, 3.5vw, 1.25rem) 3.5rem clamp(1rem, 3.5vw, 1.25rem) 1rem;
   border: 2px solid var(--primary-color);
   border-radius: 9999px;
   background: #ffffff;
@@ -49,8 +49,8 @@ const Icon = styled.span`
   z-index: 2;
 
   svg {
-    width: clamp(1.35rem, 3vw, 1.75rem);
-    height: clamp(1.35rem, 3vw, 1.75rem);
+    width: clamp(1.75rem, 3.5vw, 2.25rem);
+    height: clamp(1.75rem, 3.5vw, 2.25rem);
   }
 `
 
