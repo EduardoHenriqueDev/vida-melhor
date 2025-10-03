@@ -164,7 +164,7 @@
 }
 
 .home-action-button:hover {
-  background: #f9fafb;
+  background: linear-gradient(0deg, var(--secondary-light), var(--secondary-light)), #f9fafb; /* blend secondary */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transform: translateY(-1px);
 }
@@ -194,7 +194,9 @@
 
 .home-action-button.primary:hover {
   background: var(--primary-hover);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.08),
+    0 0 0 3px var(--secondary-light); /* soft secondary ring */
 }
 
 .home-actions .home-action-button:not(.primary) {

@@ -69,7 +69,11 @@
   border-radius: 999px;
   border: 1px solid #e5e7eb;
 }
-.status.active { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+.status.active {
+  background: var(--secondary-light);
+  color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
 .status.inactive { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
 
 .address, .contact, .email {

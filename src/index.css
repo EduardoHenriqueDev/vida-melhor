@@ -10,6 +10,9 @@
   --primary-color: #197771;
   --primary-hover: #155e5a;
   --primary-light: rgba(25, 119, 113, 0.1);
+  --secondary-color: #75b577;
+  --secondary-hover: #5aa363;
+  --secondary-light: rgba(117, 181, 119, 0.12);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

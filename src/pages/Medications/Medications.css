@@ -63,7 +63,11 @@
   border-radius: 999px;
   border: 1px solid #e5e7eb;
 }
-.badge.generic { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+.badge.generic {
+  background: var(--secondary-light);
+  color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
 .badge.brand { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
 
 .meta {

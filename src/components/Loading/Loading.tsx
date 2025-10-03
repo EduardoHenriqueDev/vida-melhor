@@ -21,7 +21,7 @@ const Wrapper = styled.div<{ $full: boolean }>`
 const Spinner = styled.div`
   width: 28px;
   height: 28px;
-  border: 3px solid var(--primary-light);
+  border: 3px solid var(--secondary-light);
   border-top-color: var(--primary-color);
   border-radius: 50%;
   animation: ${spin} 0.8s linear infinite;
