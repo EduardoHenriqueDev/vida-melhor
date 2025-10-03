@@ -149,17 +149,6 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
 
       <div className="home-bottom">
         <div className="home-actions">
-          {isCarer && (
-            <button
-              type="button"
-              className="home-action-button carer"
-              aria-label="Cuidador"
-              onClick={() => onNavigate('cuidador')}
-            >
-              <FaUser className="icon" />
-              <span>Cuidador</span>
-            </button>
-          )}
           <button
             type="button"
             className="home-action-button primary"
@@ -183,6 +172,20 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
             <span>Medicamentos</span>
           </button>
         </div>
+
+        {isCarer && (
+          <div className="home-carer">
+            <button
+              type="button"
+              className="home-action-button carer"
+              aria-label="Cuidador"
+              onClick={() => onNavigate('cuidador')}
+            >
+              <FaUser className="icon" />
+              <span>Cuidador</span>
+            </button>
+          </div>
+        )}
 
         <div className="home-emergency">
           <button type="button" className="home-action-button emergency" aria-label="Emergência">
