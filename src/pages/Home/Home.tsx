@@ -5,7 +5,7 @@ import Navbar from '../../components/Navbar/Navbar'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import './Home.css'
 import SearchBar from '../../components/SearchBar/SearchBar'
-import { FaClinicMedical, FaCalendarAlt, FaPills } from 'react-icons/fa'
+import { FaClinicMedical, FaCalendarAlt, FaPills, FaUser } from 'react-icons/fa'
 import CartIcon from '../../components/CartIcon/CartIcon'
 import { MdEmergency } from 'react-icons/md'
 import { useCart } from '../../contexts/CartContext'
@@ -13,12 +13,15 @@ import { getMedications, type Medication } from '../../services/medicationsServi
 
 interface HomeProps {
   onSignOut: () => void
-  onNavigate: (page: 'home' | 'profile' | 'pharmacies' | 'medications') => void
+  onNavigate: (
+    page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications'
+  ) => void
 }
 
 const Home = ({ onSignOut, onNavigate }: HomeProps) => {
   const [displayName, setDisplayName] = useState<string>('')
   const [open, setOpen] = useState(false)
+  const [isCarer, setIsCarer] = useState(false)
   const { count } = useCart()
   const [meds, setMeds] = useState<Medication[]>([])
   const [medsLoading, setMedsLoading] = useState(true)
@@ -30,6 +33,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       const user = data.user
       const name = (user?.user_metadata as any)?.name as string | undefined
       setDisplayName(name || user?.email || 'Usuário')
+      setIsCarer(!!(user?.user_metadata as any)?.carer)
     }
     loadUser()
   }, [])
@@ -65,7 +69,8 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
     loadMeds()
   }, [])
 
-  const formatPrice = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  const formatPrice = (cents: number) =>
+    (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
   const handleSignOut = async () => {
     await signOut()
@@ -95,41 +100,72 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       <div className="home-medicines">
         <div className="meds-header">
           <h3 className="meds-title">Medicamentos</h3>
-          <button type="button" className="see-all" onClick={() => onNavigate('medications')}>Ver tudo</button>
+          <button
+            type="button"
+            className="see-all"
+            onClick={() => onNavigate('medications')}
+          >
+            Ver tudo
+          </button>
         </div>
         <div className="meds-row" role="list">
-          {medsLoading && Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="med-card skeleton" />
-          ))}
-          {!medsLoading && medsError && (
-            <div className="med-error">{medsError}</div>
-          )}
-          {!medsLoading && !medsError && meds.map(m => (
-            <button
-              key={m.id}
-              type="button"
-              className="med-card mini"
-              role="listitem"
-              aria-label={`Ver ${m.name}`}
-              onClick={() => onNavigate('medications')}
-            >
-              <div className="med-mini-header">
-                <span className="med-name" title={m.name}>{m.name}</span>
-                <span className={`badge ${m.is_generic ? 'generic' : 'brand'}`}>{m.is_generic ? 'Genérico' : 'Marca'}</span>
-              </div>
-              {m.description && <span className="med-desc" title={m.description}>{m.description}</span>}
-              <div className="med-meta-line">
-                <span className="med-stock">Estoque: {m.stock}</span>
-                <span className="med-price">{formatPrice(m.price_in_cents)}</span>
-              </div>
-            </button>
-          ))}
+          {medsLoading &&
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="med-card skeleton" />
+            ))}
+          {!medsLoading && medsError && <div className="med-error">{medsError}</div>}
+          {!medsLoading &&
+            !medsError &&
+            meds.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                className="med-card mini"
+                role="listitem"
+                aria-label={`Ver ${m.name}`}
+                onClick={() => onNavigate('medications')}
+              >
+                <div className="med-mini-header">
+                  <span className="med-name" title={m.name}>
+                    {m.name}
+                  </span>
+                  <span className={`badge ${m.is_generic ? 'generic' : 'brand'}`}>
+                    {m.is_generic ? 'Genérico' : 'Marca'}
+                  </span>
+                </div>
+                {m.description && (
+                  <span className="med-desc" title={m.description}>
+                    {m.description}
+                  </span>
+                )}
+                <div className="med-meta-line">
+                  <span className="med-stock">Estoque: {m.stock}</span>
+                  <span className="med-price">{formatPrice(m.price_in_cents)}</span>
+                </div>
+              </button>
+            ))}
         </div>
       </div>
 
       <div className="home-bottom">
         <div className="home-actions">
-          <button type="button" className="home-action-button primary" aria-label="Farmácias" onClick={() => onNavigate('pharmacies')}>
+          {isCarer && (
+            <button
+              type="button"
+              className="home-action-button carer"
+              aria-label="Cuidador"
+              onClick={() => onNavigate('cuidador')}
+            >
+              <FaUser className="icon" />
+              <span>Cuidador</span>
+            </button>
+          )}
+          <button
+            type="button"
+            className="home-action-button primary"
+            aria-label="Farmácias"
+            onClick={() => onNavigate('pharmacies')}
+          >
             <FaClinicMedical className="icon" />
             <span>Farmácias</span>
           </button>
@@ -137,7 +173,12 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
             <FaCalendarAlt className="icon" />
             <span>Consultas</span>
           </button>
-          <button type="button" className="home-action-button" aria-label="Medicamentos" onClick={() => onNavigate('medications')}>
+          <button
+            type="button"
+            className="home-action-button"
+            aria-label="Medicamentos"
+            onClick={() => onNavigate('medications')}
+          >
             <FaPills className="icon" />
             <span>Medicamentos</span>
           </button>
