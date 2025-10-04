@@ -34,7 +34,7 @@ export async function signUpWithProfile(input: SignUpInput) {
   if (userId) {
     // Tenta inserir perfil imediatamente
     const { error: insertError } = await supabase
-      .from('users')
+      .from('profiles')
       .upsert({
         id: userId,
         name: cleanName,
@@ -78,7 +78,7 @@ export async function ensureUserProfile() {
 
   // Busca dados já existentes
   const { data: existing } = await supabase
-    .from('users')
+    .from('profiles')
     .select('id, name, email, cpf, phone, carer')
     .eq('id', user.id)
     .maybeSingle()
@@ -111,7 +111,7 @@ export async function ensureUserProfile() {
     carer: inputCarer,
   }
 
-  const { error: upsertError } = await supabase.from('users').upsert(payload)
+  const { error: upsertError } = await supabase.from('profiles').upsert(payload)
 
   if (!upsertError) {
     try {

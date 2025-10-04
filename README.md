@@ -81,55 +81,59 @@ VITE_SUPABASE_URL=xxxx
 VITE_SUPABASE_ANON_KEY=xxxx
 ```
 
-2. Crie a tabela `users` com RLS habilitado:
+2. Crie a tabela `profiles` com RLS habilitado:
 
 ```sql
-create table if not exists public.users (
+create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   name text not null,
   email text not null unique,
   cpf text not null unique,
   phone text not null,
+  carer boolean default false,
   created_at timestamptz default now()
 );
 
-alter table public.users enable row level security;
+alter table public.profiles enable row level security;
 
--- Usuário autenticado pode ver e editar apenas seu próprio registro
-create policy "Users can view own profile" on public.users
-for select using ( auth.uid() = id );
+create policy "Profiles select own" on public.profiles
+  for select using ( auth.uid() = id );
 
-create policy "Users can insert own profile" on public.users
-for insert with check ( auth.uid() = id );
+create policy "Profiles insert own" on public.profiles
+  for insert with check ( auth.uid() = id );
 
-create policy "Users can update own profile" on public.users
-for update using ( auth.uid() = id );
+create policy "Profiles update own" on public.profiles
+  for update using ( auth.uid() = id );
 ```
 
 ## Trigger para auto-criar perfil após cadastro
 Se a confirmação de e-mail estiver habilitada, crie um trigger para inserir o perfil quando o usuário é confirmado no auth.users.
 
 ```sql
-create or replace function public.handle_new_user()
+create or replace function public.handle_new_profile()
 returns trigger as $$
 begin
-  insert into public.users (id, name, email, cpf, phone)
-  values (new.id, coalesce(new.raw_user_meta_data->>'name',''), new.email, coalesce(new.raw_user_meta_data->>'cpf',''), coalesce(new.raw_user_meta_data->>'phone',''))
+  insert into public.profiles (id, name, email, cpf, phone, carer)
+  values (new.id,
+          coalesce(new.raw_user_meta_data->>'name',''),
+          new.email,
+          coalesce(new.raw_user_meta_data->>'cpf',''),
+          coalesce(new.raw_user_meta_data->>'phone',''),
+          (new.raw_user_meta_data->>'carer')::boolean)
   on conflict (id) do nothing;
   return new;
 end;
 $$ language plpgsql security definer;
 
--- dispara ao inserir no auth.users
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
-  for each row execute function public.handle_new_user();
+  for each row execute function public.handle_new_profile();
 ```
 
 Observações:
-- Garanta que a tabela `users` esteja com RLS habilitado e as policies de insert/select/update para o próprio usuário (como acima).
-- Se estiver recebendo 401 em `insert` na tabela `users`, verifique:
-  1) Se há sessão após `signUp` (quando email confirma está on, normalmente não há). Use o trigger acima.
-  2) Se as policies permitem `insert` pelo `anon` com `auth.uid() = id` (a chave anon autentica o usuário logado).
-  3) Se o `id` que você insere é exatamente `auth.uid()`.
+- Garanta que a tabela `profiles` esteja com RLS habilitado e as policies de insert/select/update para o próprio usuário.
+- Se estiver recebendo 401/403 em operações na tabela `profiles`, verifique:
+  1) Se há sessão após `signUp` (quando email confirmation está on, use o trigger acima).
+  2) Se as policies permitem a operação com `auth.uid() = id`.
+  3) Se o `id` sendo enviado é exatamente `auth.uid()`.

@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import Navbar from '../../components/Navbar/Navbar'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import { signOut } from '../../services/authService'
 import { FaPen } from 'react-icons/fa'
+import Modal, { ModalFooter, ModalAction } from '../../components/Modal/Modal'
 
 interface ProfileProps {
   onSignOut: () => void
@@ -16,6 +17,13 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
   const [email, setEmail] = useState<string>('')
   const [phone, setPhone] = useState<string>('')
   const [cpf, setCpf] = useState<string>('')
+  const [editOpen, setEditOpen] = useState(false)
+  const [formName, setFormName] = useState('')
+  const [formEmail, setFormEmail] = useState('')
+  const [formPhone, setFormPhone] = useState('')
+  const [formCpf, setFormCpf] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string|null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -25,7 +33,7 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
 
       if (user?.id) {
         const { data: profile } = await supabase
-          .from('users')
+          .from('profiles')
           .select('name, email, phone, cpf')
           .eq('id', user.id)
           .maybeSingle()
@@ -34,11 +42,15 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
         setEmail(profile?.email || user?.email || '')
         setPhone(profile?.phone || meta?.phone || '')
         setCpf(profile?.cpf || meta?.cpf || '')
+        setFormName(profile?.name || meta?.name || user?.email || 'Usuário')
+        setFormEmail(profile?.email || user?.email || '')
+        setFormPhone((profile?.phone || meta?.phone || '').replace(/\D/g,'').slice(0,11))
+        setFormCpf((profile?.cpf || meta?.cpf || '').replace(/\D/g,'').slice(0,11))
       } else {
         setName(meta?.name || user?.email || 'Usuário')
         setEmail(user?.email || '')
-        setPhone(meta?.phone || '')
-        setCpf(meta?.cpf || '')
+        setPhone((meta?.phone || '').replace(/\D/g,'').slice(0,11))
+        setCpf((meta?.cpf || '').replace(/\D/g,'').slice(0,11))
       }
     }
     load()
@@ -79,10 +91,58 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
     return `(${ddd}) ${r.slice(0,5)}-${r.slice(5)}`
   }
 
+  const openEdit = () => { setFormName(name); setFormEmail(email); setFormPhone(phone); setFormCpf(cpf); setEditOpen(true) }
+  const handleSave = useCallback(async () => {
+    setSaving(true); setSaveError(null)
+    try {
+      const cleanCpf = formCpf.replace(/\D/g,'').slice(0,11)
+      const cleanPhone = formPhone.replace(/\D/g,'').slice(0,11)
+      const { data: userResp } = await supabase.auth.getUser()
+      const user = userResp.user
+      if(!user) throw new Error('Sessão expirada')
+
+      if (formEmail.trim() && formEmail.trim() !== email) {
+        const { error: emailErr } = await supabase.auth.updateUser({ email: formEmail.trim() })
+        if (emailErr) throw new Error(emailErr.message || 'Falha ao atualizar email de autenticação')
+      }
+
+      const { error: updateErr } = await supabase
+        .from('profiles')
+        .update({ name: formName.trim(), phone: cleanPhone, cpf: cleanCpf })
+        .eq('id', user.id)
+      if (updateErr) {
+        if ((updateErr as any).code === '42501' || /permission|denied|403/i.test(updateErr.message)) {
+          throw new Error('Sem permissão para atualizar (verifique políticas RLS da tabela profiles).')
+        }
+        // Se registro não existir tentar inserir
+        const { error: insertErr } = await supabase
+          .from('profiles')
+          .insert({ id: user.id, name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, email: formEmail.trim() })
+        if (insertErr) throw insertErr
+      }
+
+      setName(formName.trim());
+      setEmail(formEmail.trim());
+      setPhone(cleanPhone);
+      setCpf(cleanCpf);
+      setEditOpen(false)
+    } catch(e:any) {
+      setSaveError(e.message || 'Erro ao salvar')
+    } finally { setSaving(false) }
+  }, [formName, formEmail, formPhone, formCpf, email])
+
+  const handlePhoneChange = (v: string) => {
+    const digits = v.replace(/\D/g,'').slice(0,11)
+    setFormPhone(digits)
+  }
+  const handleCpfChange = (v: string) => {
+    const digits = v.replace(/\D/g,'').slice(0,11)
+    setFormCpf(digits)
+  }
+
   return (
     <div className="home-container">
       <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} />
-      {/* Card centralizado com informações */}
       <div className="home-toolbar" style={{ padding: '1rem 0' }}>
         <div style={{ width: 'calc(100% - 2rem)', margin: '0 auto' }}>
           <div
@@ -93,13 +153,12 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
               padding: '1.25rem',
               textAlign: 'center',
               position: 'relative',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
             }}
           >
             <button
               type="button"
               aria-label="Editar perfil"
-              onClick={() => {/* futura ação de edição */}}
+              onClick={openEdit}
               style={{
                 position: 'absolute', top: 8, right: 8,
                 background: 'linear-gradient(135deg,var(--primary-color),var(--secondary-color))',
@@ -140,8 +199,31 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
         onClose={() => setOpen(false)}
         onSignOut={handleSignOut}
         onNavigate={onNavigate}
-        activePage="profile" // + highlight Profile
+        activePage="profile" 
       />
+      <Modal open={editOpen} onClose={()=>setEditOpen(false)} title="Editar perfil">
+        <div style={{ display:'flex', flexDirection:'column', gap:'.75rem' }}>
+          <label style={{ display:'flex', flexDirection:'column', gap:4, fontSize:12, fontWeight:600, color:'var(--primary-color)' }}>Nome
+            <input value={formName} onChange={e=>setFormName(e.target.value)} style={{ padding:'0.6rem 0.7rem', border:'2px solid var(--primary-color)', borderRadius:8, fontSize:13 }} />
+          </label>
+          <label style={{ display:'flex', flexDirection:'column', gap:4, fontSize:12, fontWeight:600, color:'var(--primary-color)' }}>Email
+            <input type="email" value={formEmail} onChange={e=>setFormEmail(e.target.value)} style={{ padding:'0.6rem 0.7rem', border:'2px solid var(--primary-color)', borderRadius:8, fontSize:13 }} />
+          </label>
+          <div style={{ display:'grid', gap:'.75rem', gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))' }}>
+            <label style={{ display:'flex', flexDirection:'column', gap:4, fontSize:12, fontWeight:600, color:'var(--primary-color)' }}>Telefone
+              <input value={formatPhone(formPhone)} onChange={e=>handlePhoneChange(e.target.value)} style={{ padding:'0.6rem 0.7rem', border:'2px solid var(--primary-color)', borderRadius:8, fontSize:13 }} />
+            </label>
+            <label style={{ display:'flex', flexDirection:'column', gap:4, fontSize:12, fontWeight:600, color:'var(--primary-color)' }}>CPF
+              <input value={formatCPF(formCpf)} onChange={e=>handleCpfChange(e.target.value)} style={{ padding:'0.6rem 0.7rem', border:'2px solid var(--primary-color)', borderRadius:8, fontSize:13 }} />
+            </label>
+          </div>
+          {saveError && <div style={{ fontSize:12, fontWeight:600, color:'#b91c1c' }}>{saveError}</div>}
+        </div>
+        <ModalFooter>
+          <ModalAction $variant="secondary" type="button" onClick={()=>setEditOpen(false)}>Cancelar</ModalAction>
+          <ModalAction type="button" disabled={saving || !formName.trim() || !formEmail.trim()} onClick={handleSave}>{saving? 'Salvando...' : 'Salvar'}</ModalAction>
+        </ModalFooter>
+      </Modal>
     </div>
   )
 }
