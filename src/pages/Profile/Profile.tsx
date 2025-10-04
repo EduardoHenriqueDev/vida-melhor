@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient'
 import Navbar from '../../components/Navbar/Navbar'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import { signOut } from '../../services/authService'
+import { FaPen } from 'react-icons/fa'
 
 interface ProfileProps {
   onSignOut: () => void
@@ -81,19 +82,38 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
   return (
     <div className="home-container">
       <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} />
-
       {/* Card centralizado com informações */}
       <div className="home-toolbar" style={{ padding: '1rem 0' }}>
         <div style={{ width: 'calc(100% - 2rem)', margin: '0 auto' }}>
           <div
             style={{
               background: '#fff',
-              border: '1px solid #e5e7eb',
+              border: 'none',
               borderRadius: 12,
               padding: '1.25rem',
-              textAlign: 'center'
+              textAlign: 'center',
+              position: 'relative',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
             }}
           >
+            <button
+              type="button"
+              aria-label="Editar perfil"
+              onClick={() => {/* futura ação de edição */}}
+              style={{
+                position: 'absolute', top: 8, right: 8,
+                background: 'linear-gradient(135deg,var(--primary-color),var(--secondary-color))',
+                border: 'none', color: '#fff', cursor: 'pointer',
+                width: 36, height: 36, borderRadius: '10px',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                transition: 'background .15s, transform .1s'
+              }}
+              onMouseDown={e => e.currentTarget.style.transform = 'scale(.94)'}
+              onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              <FaPen size={16} />
+            </button>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
               <div style={{
                 width: 64, height: 64, borderRadius: '9999px',
@@ -105,10 +125,8 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
                 </svg>
               </div>
             </div>
-
             <div style={{ fontWeight: 700, color: '#111827', fontSize: '1rem', marginBottom: '0.25rem' }}>{name}</div>
             <div style={{ color: '#6b7280', fontSize: '0.95rem', marginBottom: '0.75rem' }}>{email}</div>
-
             <div style={{ display: 'grid', gap: '0.5rem', justifyItems: 'center' }}>
               <div style={{ color: '#111827' }}><strong>Telefone: </strong>{formatPhone(phone)}</div>
               <div style={{ color: '#111827' }}><strong>CPF: </strong>{formatCPF(cpf)}</div>
@@ -116,7 +134,6 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
           </div>
         </div>
       </div>
-
       <Sidebar
         open={open}
         displayName={name}

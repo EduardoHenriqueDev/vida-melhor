@@ -47,11 +47,12 @@
 }
 
 .menu-button:hover {
-    background: transparent;
+    background: var(--secondary-light);
+    border-radius: 8px;
 }
 
 .signout-button {
-    background: var(--primary-color);
+    background: linear-gradient(90deg,var(--primary-color),var(--secondary-color));
     color: #fff;
     border: none;
     padding: 0.5rem 0.875rem;
@@ -61,7 +62,7 @@
 }
 
 .signout-button:hover {
-    background: var(--primary-hover);
+    background: linear-gradient(90deg,var(--secondary-hover),var(--primary-color));
 }
 
 .menu-wrap {

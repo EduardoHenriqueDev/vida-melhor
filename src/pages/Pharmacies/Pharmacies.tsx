@@ -5,7 +5,7 @@ import Navbar from '../../components/Navbar/Navbar'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import { supabase } from '../../lib/supabaseClient'
 import { signOut } from '../../services/authService'
-import Loading from '../../components/Loading/Loading' // + loading
+import Loading from '../../components/Loading/Loading'
 
 interface PharmaciesProps {
   onBack?: () => void
@@ -87,17 +87,12 @@ const Pharmacies = ({ onBack, onNavigate }: PharmaciesProps) => {
               <h3 className="name">{ph.name}</h3>
               <span className={`status ${ph.active ? 'active' : 'inactive'}`}>{ph.active ? 'Ativa' : 'Inativa'}</span>
             </div>
-            {ph.address && <p className="address">{ph.address}</p>}
-            {ph.contact && <p className="contact">Contato: {ph.contact}</p>}
-            <p className="email">
-              Email: {ph.email}
-              <span className={`badge ${ph.email_verified ? 'verified' : 'unverified'}`}>
-                {ph.email_verified ? 'Verificado' : 'Não verificado'}
-              </span>
-            </p>
-            <div className="meta">
-              <small>Criada: {new Date(ph.created_at).toLocaleDateString()}</small>
-              <small>Atualizada: {new Date(ph.updated_at).toLocaleDateString()}</small>
+            <div className="card-body">
+              {ph.address && <p className="address" title={ph.address}>{ph.address}</p>}
+              {ph.contact && <p className="contact" title={ph.contact}>{ph.contact}</p>}
+              <p className="email" title={ph.email}>{ph.email}
+                <span className={`badge ${ph.email_verified ? 'verified' : 'unverified'}`}>{ph.email_verified ? 'Verificado' : 'Não verificado'}</span>
+              </p>
             </div>
           </div>
         ))}
