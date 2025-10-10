@@ -13,6 +13,9 @@
   --secondary-color: #75b577;
   --secondary-hover: #5aa363;
   --secondary-light: rgba(117, 181, 119, 0.12);
+  --primary-secondary-gradient: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  --primary-secondary-gradient-diag: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  --focus-mix: 0 0 0 3px var(--primary-light), 0 0 0 6px var(--secondary-light);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

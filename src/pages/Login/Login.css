@@ -127,7 +127,7 @@
 }
 
 .login-button {
-  background: var(--primary-color);
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
   color: white;
   border: none;
   padding: 0.875rem;
@@ -139,7 +139,7 @@
 }
 
 .login-button:hover {
-  background: var(--primary-hover);
+  background: linear-gradient(90deg, var(--secondary-hover), var(--primary-color));
   transform: translateY(-1px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
@@ -165,5 +165,5 @@
 }
 
 .link-button:hover {
-  color: var(--primary-hover);
+  color: var(--secondary-color);
 }

@@ -39,7 +39,7 @@ const StyledWrapper = styled.div`
 
   .coolinput input.input:focus {
     outline: none;
-    box-shadow: 0 0 0 3px var(--primary-light);
+    box-shadow: var(--focus-mix);
   }
 
   .password-wrapper {
@@ -79,7 +79,7 @@ const StyledWrapper = styled.div`
 
   .toggle:hover {
     color: var(--primary-color);
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: var(--secondary-light);
   }
 `
 

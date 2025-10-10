@@ -8,6 +8,7 @@ import './Medications.css'
 import Loading from '../../components/Loading/Loading'
 import CartIcon from '../../components/CartIcon/CartIcon'
 import { useCart } from '../../contexts/CartContext'
+import { FaCartPlus } from 'react-icons/fa'
 
 interface MedicationsProps {
   onBack?: () => void
@@ -76,7 +77,7 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
           </svg>
         </button>
         <h2 className="title">Medicamentos</h2>
-        <div style={{ marginLeft: 'auto' }}>
+        <div className="cart-wrap">
           <CartIcon count={count} />
         </div>
       </div>
@@ -86,31 +87,29 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
           <div key={m.id} className="card">
             <div className="card-header">
               <h3 className="name">{m.name}</h3>
-              <span className={`badge ${m.is_generic ? 'generic' : 'brand'}`}>
-                {m.is_generic ? 'Genérico' : 'Marca'}
-              </span>
+              <span className={`badge ${m.is_generic ? 'generic' : 'brand'}`}>{m.is_generic ? 'Genérico' : 'Marca'}</span>
             </div>
-            {m.description && <p className="desc">{m.description}</p>}
-            <p className="stock">Estoque: {m.stock}</p>
-            <p className="price">{formatPrice(m.price_in_cents)}</p>
-            <div className="meta">
-              <small>Slug: {m.slug}</small>
-              <small>Criado: {new Date(m.created_at).toLocaleDateString()}</small>
+            <div className="card-body">
+              {m.description && <p className="desc" title={m.description}>{m.description}</p>}
+              <div className="inline-meta">
+                {m.stock > 0 ? (
+                  <span className="stock">Estoque: {m.stock}</span>
+                ) : (
+                  <span className="out-of-stock" aria-label="Fora de estoque">Fora de estoque</span>
+                )}
+                <span className="price">{formatPrice(m.price_in_cents)}</span>
+              </div>
             </div>
-            <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <div className="card-footer">
+              <small className="slug">Slug: {m.slug}</small>
               <button
                 type="button"
-                onClick={() => addItem({ id: m.id, name: m.name, price_in_cents: m.price_in_cents })}
-                style={{
-                  background: 'var(--primary-color)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 8,
-                  padding: '0.5rem 0.75rem',
-                  cursor: 'pointer'
-                }}
+                className={`add-btn ${m.stock === 0 ? 'disabled' : ''}`}
+                aria-label={m.stock === 0 ? `${m.name} fora de estoque` : `Adicionar ${m.name} ao carrinho`}
+                disabled={m.stock === 0}
+                onClick={() => m.stock > 0 && addItem({ id: m.id, name: m.name, price_in_cents: m.price_in_cents })}
               >
-                Adicionar
+                <FaCartPlus />
               </button>
             </div>
           </div>

@@ -21,11 +21,26 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
       const { data } = await supabase.auth.getUser()
       const user = data.user
       const metaName = (user?.user_metadata as any)?.name as string | undefined
-      setName(displayName || metaName || user?.email || 'Usuário')
+      let profileName: string | undefined
+      if (user?.id) {
+        const { data: prof, error } = await supabase
+          .from('profiles')
+          .select('name')
+            .eq('id', user.id)
+          .maybeSingle()
+        if (!error) profileName = (prof as any)?.name
+      }
+      setName(profileName || displayName || metaName || user?.email || 'Usuário')
       setEmail(user?.email || '')
     }
     load()
   }, [displayName])
+
+  useEffect(() => {
+    const handler = (e: any) => { if (e?.detail?.name) setName(e.detail.name) }
+    window.addEventListener('profile-updated', handler)
+    return () => window.removeEventListener('profile-updated', handler)
+  }, [])
 
   return (
     <>
@@ -60,32 +75,32 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
             <a
               href="#"
               className={`sidebar-link ${activePage === 'home' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); onNavigate?.('home'); onClose(); }}
+              onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','home')}catch{}; onNavigate?.('home'); onClose(); }}
             >
               Home
             </a>
             <a
               href="#"
               className={`sidebar-link ${activePage === 'profile' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); onNavigate?.('profile'); onClose(); }}
+              onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','profile')}catch{}; onNavigate?.('profile'); onClose(); }}
             >
               Perfil
             </a>
             <a
               href="#"
               className={`sidebar-link ${activePage === 'medications' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); onNavigate?.('medications'); onClose(); }}
+              onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','medications')}catch{}; onNavigate?.('medications'); onClose(); }}
             >
               Medicamentos
             </a>
             <a
               href="#"
               className={`sidebar-link ${activePage === 'pharmacies' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); onNavigate?.('pharmacies'); onClose(); }}
+              onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','pharmacies')}catch{}; onNavigate?.('pharmacies'); onClose(); }}
             >
               Farmácias
             </a>
-            <a href="#" className="sidebar-link" onClick={onClose}>Consultas</a>
+            <a href="#" className="sidebar-link" onClick={(e) => { e.preventDefault(); onClose(); }}>Consultas</a>
           </nav>
         </div>
 

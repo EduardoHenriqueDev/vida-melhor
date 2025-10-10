@@ -16,11 +16,10 @@ const Button = styled.button`
   justify-content: center;
   border-radius: 9999px;
   cursor: pointer;
-  transition: background-color 0.15s ease-in-out;
+  transition: background-color 0.15s ease-in-out, box-shadow .15s;
 
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
+  &:hover { background-color: var(--secondary-light); }
+  &:focus { outline:none; box-shadow: var(--focus-mix); }
 
   svg {
     width: 2.5rem;
@@ -31,6 +30,14 @@ const Button = styled.button`
     svg {
       width: 3rem;
       height: 3rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    padding: 0.15rem; /* menor no desktop */
+    svg {
+      width: 2rem;
+      height: 2rem;
     }
   }
 `
@@ -59,6 +66,14 @@ const Badge = styled.span`
     min-width: 1.2rem;
     height: 1.2rem;
     font-size: 0.7rem;
+  }
+
+  @media (min-width: 1024px) {
+    min-width: 1rem;
+    height: 1rem;
+    font-size: 0.6rem;
+    bottom: -1px;
+    right: -1px;
   }
 `
 
