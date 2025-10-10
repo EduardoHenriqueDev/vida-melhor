@@ -8,13 +8,14 @@ interface SidebarProps {
   displayName: string
   onClose: () => void
   onSignOut: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'medications') => void
-  activePage?: 'home' | 'profile' | 'pharmacies' | 'medications' // + active page
+  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'medications' | 'cuidador') => void
+  activePage?: 'home' | 'profile' | 'pharmacies' | 'medications' | 'cuidador'
 }
 
 const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage }: SidebarProps) => {
   const [name, setName] = useState<string>(displayName)
   const [email, setEmail] = useState<string>('')
+  const [isCarer, setIsCarer] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -25,13 +26,17 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
       if (user?.id) {
         const { data: prof, error } = await supabase
           .from('profiles')
-          .select('name')
+          .select('name, carer')
             .eq('id', user.id)
           .maybeSingle()
-        if (!error) profileName = (prof as any)?.name
+        if (!error) {
+          profileName = (prof as any)?.name
+          setIsCarer(!!(prof as any)?.carer)
+        }
       }
       setName(profileName || displayName || metaName || user?.email || 'Usuário')
       setEmail(user?.email || '')
+      if (!profileName) setIsCarer(!!(user?.user_metadata as any)?.carer)
     }
     load()
   }, [displayName])
@@ -100,6 +105,15 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
             >
               Farmácias
             </a>
+            {isCarer && (
+              <a
+                href="#"
+                className={`sidebar-link ${activePage === 'cuidador' ? 'active' : ''}`}
+                onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','cuidador')}catch{}; onNavigate?.('cuidador'); onClose(); }}
+              >
+                Cuidador
+              </a>
+            )}
             <a href="#" className="sidebar-link" onClick={(e) => { e.preventDefault(); onClose(); }}>Consultas</a>
           </nav>
         </div>

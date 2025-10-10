@@ -137,3 +137,22 @@ Observações:
   1) Se há sessão após `signUp` (quando email confirmation está on, use o trigger acima).
   2) Se as policies permitem a operação com `auth.uid() = id`.
   3) Se o `id` sendo enviado é exatamente `auth.uid()`.
+
+## Permitir cuidadores listarem idosos
+Para que usuários marcados como cuidadores consigam visualizar todos os perfis de idosos (carer = false) na tela do Cuidador, adicione a seguinte policy na tabela `profiles`:
+
+```sql
+create policy "Caregivers can select elderly" on public.profiles
+  for select
+  using (
+    -- Usuário logado é cuidador
+    exists (
+      select 1 from public.profiles p
+      where p.id = auth.uid() and p.carer = true
+    )
+    -- E o registro consultado é de idoso
+    and carer = false
+  );
+```
+
+Mantenha também a policy de "select own" já existente para que cada usuário visualize seu próprio registro.
