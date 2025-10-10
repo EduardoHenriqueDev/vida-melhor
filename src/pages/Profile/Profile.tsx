@@ -4,7 +4,7 @@ import Navbar from '../../components/Navbar/Navbar'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import { signOut } from '../../services/authService'
 import { FaPen } from 'react-icons/fa'
-import Modal, { ModalFooter, ModalAction } from '../../components/Modal/Modal'
+import './Profile.css'
 
 interface ProfileProps {
   onSignOut: () => void
@@ -22,8 +22,15 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
   const [formEmail, setFormEmail] = useState('')
   const [formPhone, setFormPhone] = useState('')
   const [formCpf, setFormCpf] = useState('')
+  const [address, setAddress] = useState<string>('')
+  const [formAddress, setFormAddress] = useState('')
   const [saving, setSaving] = useState(false)
+  // remove saveError unused warning but keep state for UI errors
   const [saveError, setSaveError] = useState<string|null>(null)
+  const [addrSuggestions, setAddrSuggestions] = useState<string[]>([])
+  const [addrLoading, setAddrLoading] = useState(false)
+  const [showAddrSug, setShowAddrSug] = useState(false)
+  const [addrError, setAddrError] = useState<string|null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -32,25 +39,39 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
       const meta = (user?.user_metadata as any) || {}
 
       if (user?.id) {
-        const { data: profile } = await supabase
+        const { data: profile, error: profErr } = await supabase
           .from('profiles')
-          .select('name, email, phone, cpf')
+          .select('name, email, phone, cpf, adress')
           .eq('id', user.id)
           .maybeSingle()
 
-        setName(profile?.name || meta?.name || user?.email || 'Usuário')
-        setEmail(profile?.email || user?.email || '')
-        setPhone(profile?.phone || meta?.phone || '')
-        setCpf(profile?.cpf || meta?.cpf || '')
-        setFormName(profile?.name || meta?.name || user?.email || 'Usuário')
-        setFormEmail(profile?.email || user?.email || '')
-        setFormPhone((profile?.phone || meta?.phone || '').replace(/\D/g,'').slice(0,11))
-        setFormCpf((profile?.cpf || meta?.cpf || '').replace(/\D/g,'').slice(0,11))
+        let prof = profile as any
+        if (profErr && ((profErr as any).code === '42703' || /column .*adress/i.test(profErr.message))) {
+          const { data: prof2 } = await supabase
+            .from('profiles')
+            .select('name, email, phone, cpf, address')
+            .eq('id', user.id)
+            .maybeSingle()
+          if (prof2) prof = { ...prof2, adress: (prof2 as any).address }
+        }
+
+        setName(prof?.name || meta?.name || user?.email || 'Usuário')
+        setEmail(prof?.email || user?.email || '')
+        setPhone(prof?.phone || meta?.phone || '')
+        setCpf(prof?.cpf || meta?.cpf || '')
+        setAddress(prof?.adress || meta?.address || '')
+        setFormName(prof?.name || meta?.name || user?.email || 'Usuário')
+        setFormEmail(prof?.email || user?.email || '')
+        setFormPhone((prof?.phone || meta?.phone || '').replace(/\D/g,'').slice(0,11))
+        setFormCpf((prof?.cpf || meta?.cpf || '').replace(/\D/g,'').slice(0,11))
+        setFormAddress((prof?.adress || meta?.address || ''))
       } else {
         setName(meta?.name || user?.email || 'Usuário')
         setEmail(user?.email || '')
         setPhone((meta?.phone || '').replace(/\D/g,'').slice(0,11))
         setCpf((meta?.cpf || '').replace(/\D/g,'').slice(0,11))
+        setAddress(meta?.address || '')
+        setFormAddress(meta?.address || '')
       }
     }
     load()
@@ -68,6 +89,8 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
     }
     ensureSession()
   }, [onSignOut])
+
+  useEffect(() => { try { localStorage.setItem('last_page','profile') } catch {} }, [])
 
   const handleSignOut = async () => {
     await signOut()
@@ -91,12 +114,29 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
     return `(${ddd}) ${r.slice(0,5)}-${r.slice(5)}`
   }
 
-  const openEdit = () => { setFormName(name); setFormEmail(email); setFormPhone(phone); setFormCpf(cpf); setEditOpen(true) }
+  const openEdit = () => {
+    setFormName(name)
+    setFormEmail(email)
+    setFormPhone(phone)
+    setFormCpf(cpf)
+    setFormAddress(address)
+    setEditOpen(true)
+  }
+  const cancelEdit = () => {
+    setFormName(name)
+    setFormEmail(email)
+    setFormPhone((phone || '').replace(/\D/g,'').slice(0,11))
+    setFormCpf((cpf || '').replace(/\D/g,'').slice(0,11))
+    setFormAddress(address || '')
+    setEditOpen(false)
+  }
+
   const handleSave = useCallback(async () => {
     setSaving(true); setSaveError(null)
     try {
       const cleanCpf = formCpf.replace(/\D/g,'').slice(0,11)
       const cleanPhone = formPhone.replace(/\D/g,'').slice(0,11)
+      const cleanAddress = (formAddress || '').trim()
       const { data: userResp } = await supabase.auth.getUser()
       const user = userResp.user
       if(!user) throw new Error('Sessão expirada')
@@ -106,124 +146,252 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
         if (emailErr) throw new Error(emailErr.message || 'Falha ao atualizar email de autenticação')
       }
 
-      const { error: updateErr } = await supabase
-        .from('profiles')
-        .update({ name: formName.trim(), phone: cleanPhone, cpf: cleanCpf })
-        .eq('id', user.id)
-      if (updateErr) {
-        if ((updateErr as any).code === '42501' || /permission|denied|403/i.test(updateErr.message)) {
-          throw new Error('Sem permissão para atualizar (verifique políticas RLS da tabela profiles).')
-        }
-        // Se registro não existir tentar inserir
-        const { error: insertErr } = await supabase
+      // UPDATE com select; se nenhuma linha, faz INSERT. Fallback de 'adress' -> 'address'.
+      let updated: any = null
+      let updErr: any = null
+      try {
+        const { data, error } = await supabase
           .from('profiles')
-          .insert({ id: user.id, name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, email: formEmail.trim() })
-        if (insertErr) throw insertErr
+          .update({ name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, adress: cleanAddress })
+          .eq('id', user.id)
+          .select('id, name, email, phone, cpf, adress')
+          .maybeSingle()
+        updated = data
+        updErr = error
+      } catch (e:any) {
+        updErr = e
       }
-
+      if (updErr && ((updErr as any).code === '42703' || /adress/i.test(updErr.message))) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .update({ name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, address: cleanAddress })
+          .eq('id', user.id)
+          .select('id, name, email, phone, cpf, address')
+          .maybeSingle()
+        updated = data ? { ...data, adress: (data as any).address } : null
+        updErr = error
+      }
+      if (updErr && (updErr.code === '42501' || /permission|denied|403/i.test(updErr.message))) {
+        throw new Error('Sem permissão para atualizar (verifique policies RLS de update).')
+      }
+      // Se não atualizou nada (registro não existe), tenta INSERT
+      if (!updated) {
+        let insErr: any = null
+        try {
+          const { error } = await supabase
+            .from('profiles')
+            .insert({ id: user.id, name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, email: formEmail.trim(), adress: cleanAddress })
+          insErr = error
+        } catch (e:any) { insErr = e }
+        if (insErr && ((insErr as any).code === '42703' || /adress/i.test(insErr.message))) {
+          const { error } = await supabase
+            .from('profiles')
+            .insert({ id: user.id, name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, email: formEmail.trim(), address: cleanAddress })
+          if (error) throw error
+        } else if (insErr) {
+          throw insErr
+        }
+        // Refetch após insert
+        const { data: profIns, error: profInsErr } = await supabase
+          .from('profiles')
+          .select('name, email, phone, cpf, adress')
+          .eq('id', user.id)
+          .maybeSingle()
+        let profFinal = profIns as any
+        if (profInsErr && ((profInsErr as any).code === '42703' || /adress/i.test(profInsErr.message))) {
+          const { data: profIns2 } = await supabase
+            .from('profiles')
+            .select('name, email, phone, cpf, address')
+            .eq('id', user.id)
+            .maybeSingle()
+          profFinal = profIns2 ? { ...profIns2, adress: (profIns2 as any).address } : null
+        }
+        if (profFinal) {
+          setName(profFinal.name || formName.trim())
+          setEmail(profFinal.email || formEmail.trim())
+          setPhone((profFinal.phone || cleanPhone))
+          setCpf((profFinal.cpf || cleanCpf))
+          setAddress((profFinal.adress || cleanAddress))
+        }
+      }
+      // Atualiza metadados para outros componentes enxergarem
+      await supabase.auth.updateUser({ data: { name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, address: cleanAddress } })
+      // Dispara evento global
+      try { window.dispatchEvent(new CustomEvent('profile-updated', { detail: { name: formName.trim() } })) } catch {}
       setName(formName.trim());
       setEmail(formEmail.trim());
       setPhone(cleanPhone);
       setCpf(cleanCpf);
+      setAddress(cleanAddress);
       setEditOpen(false)
+      try { localStorage.setItem('last_page','profile') } catch {}
     } catch(e:any) {
       setSaveError(e.message || 'Erro ao salvar')
     } finally { setSaving(false) }
   }, [formName, formEmail, formPhone, formCpf, email])
 
-  const handlePhoneChange = (v: string) => {
-    const digits = v.replace(/\D/g,'').slice(0,11)
-    setFormPhone(digits)
-  }
-  const handleCpfChange = (v: string) => {
-    const digits = v.replace(/\D/g,'').slice(0,11)
-    setFormCpf(digits)
-  }
+  const handlePhoneChange = (v: string) => { const digits = v.replace(/\D/g,'').slice(0,11); setFormPhone(digits) }
+  const handleCpfChange = (v: string) => { const digits = v.replace(/\D/g,'').slice(0,11); setFormCpf(digits) }
+
+  useEffect(() => {
+    if (!editOpen) return
+    const q = (formAddress || '').trim()
+    setAddrError(null)
+    const gkey = import.meta.env.VITE_GEOAPIFY_KEY as string | undefined
+    const mtoken = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined
+    const provider = gkey ? 'geoapify' : (mtoken ? 'mapbox' : 'nominatim')
+    if (q.length < 3) { setAddrSuggestions([]); setAddrLoading(false); return }
+    let cancelled = false
+    setAddrLoading(true)
+    const t = setTimeout(async () => {
+      try {
+        let url = ''
+        if (provider === 'geoapify') {
+          url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(q)}&limit=5&filter=countrycode:br&lang=pt&apiKey=${gkey}`
+        } else if (provider === 'mapbox') {
+          url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json?autocomplete=true&limit=5&language=pt-BR&country=BR&access_token=${mtoken}`
+        } else {
+          url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(q)}&limit=5&accept-language=pt-BR&countrycodes=br`
+        }
+        const resp = await fetch(url, provider==='nominatim' ? { headers: { 'Accept': 'application/json' } } : undefined)
+        if (!resp.ok) throw new Error(`Erro ${resp.status}`)
+        const data = await resp.json()
+        if (cancelled) return
+        let items: string[] = []
+        if (provider === 'geoapify') {
+          items = (data?.features || []).map((f: any) => f?.properties?.formatted).filter(Boolean)
+        } else if (provider === 'mapbox') {
+          items = (data?.features || []).map((f: any) => f?.place_name).filter(Boolean)
+        } else {
+          items = (data || []).map((f: any) => f?.display_name).filter(Boolean)
+        }
+        setAddrSuggestions(items)
+      } catch (e: any) {
+        if (!cancelled) { setAddrSuggestions([]); setAddrError(e?.message || 'Falha ao buscar sugestões') }
+      } finally {
+        if (!cancelled) setAddrLoading(false)
+      }
+    }, 350)
+    return () => { cancelled = true; clearTimeout(t) }
+  }, [formAddress, editOpen])
 
   return (
     <div className="home-container">
       <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} />
-      <div className="home-toolbar" style={{ padding: '1rem 0' }}>
-        <div style={{ width: 'calc(100% - 2rem)', margin: '0 auto' }}>
-          <div
-            style={{
-              background: '#fff',
-              border: 'none',
-              borderRadius: 12,
-              padding: '1.25rem',
-              textAlign: 'center',
-              position: 'relative',
-            }}
-          >
-            <button
-              type="button"
-              aria-label="Editar perfil"
-              onClick={openEdit}
-              style={{
-                position: 'absolute', top: 8, right: 8,
-                background: 'linear-gradient(135deg,var(--primary-color),var(--secondary-color))',
-                border: 'none', color: '#fff', cursor: 'pointer',
-                width: 36, height: 36, borderRadius: '10px',
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                transition: 'background .15s, transform .1s'
-              }}
-              onMouseDown={e => e.currentTarget.style.transform = 'scale(.94)'}
-              onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
-            >
-              <FaPen size={16} />
-            </button>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.75rem' }}>
-              <div style={{
-                width: 64, height: 64, borderRadius: '9999px',
-                background: '#e5e7eb', color: '#6b7280',
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center'
-              }}>
-                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor" aria-hidden="true">
-                  <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/>
-                </svg>
-              </div>
+
+      <section className="profile-hero">
+        <div className="profile-hero-inner">
+          <h1 className="profile-hero-title">Meu Perfil</h1>
+          <p className="profile-hero-sub">Gerencie suas informações</p>
+        </div>
+      </section>
+
+      <section className="profile-card-wrap">
+        <div className="profile-card">
+          <button type="button" aria-label="Editar perfil" className="profile-edit" onClick={openEdit} disabled={editOpen}>
+            <FaPen size={14} />
+          </button>
+
+          <div className="profile-card-header">
+            <div className="avatar-lg" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/>
+              </svg>
             </div>
-            <div style={{ fontWeight: 700, color: '#111827', fontSize: '1rem', marginBottom: '0.25rem' }}>{name}</div>
-            <div style={{ color: '#6b7280', fontSize: '0.95rem', marginBottom: '0.75rem' }}>{email}</div>
-            <div style={{ display: 'grid', gap: '0.5rem', justifyItems: 'center' }}>
-              <div style={{ color: '#111827' }}><strong>Telefone: </strong>{formatPhone(phone)}</div>
-              <div style={{ color: '#111827' }}><strong>CPF: </strong>{formatCPF(cpf)}</div>
+            <div className="profile-ident">
+              {editOpen ? (
+                <>
+                  <input className="profile-input name" value={formName} onChange={e=>setFormName(e.target.value)} placeholder="Nome" />
+                  <input className="profile-input email" type="email" value={formEmail} onChange={e=>setFormEmail(e.target.value)} placeholder="Email" />
+                </>
+              ) : (
+                <>
+                  <div className="profile-name">{name}</div>
+                  <div className="profile-email">{email}</div>
+                </>
+              )}
             </div>
           </div>
-        </div>
-      </div>
-      <Sidebar
-        open={open}
-        displayName={name}
-        onClose={() => setOpen(false)}
-        onSignOut={handleSignOut}
-        onNavigate={onNavigate}
-        activePage="profile" 
-      />
-      <Modal open={editOpen} onClose={()=>setEditOpen(false)} title="Editar perfil">
-        <div style={{ display:'flex', flexDirection:'column', gap:'.75rem' }}>
-          <label style={{ display:'flex', flexDirection:'column', gap:4, fontSize:12, fontWeight:600, color:'var(--primary-color)' }}>Nome
-            <input value={formName} onChange={e=>setFormName(e.target.value)} style={{ padding:'0.6rem 0.7rem', border:'2px solid var(--primary-color)', borderRadius:8, fontSize:13 }} />
-          </label>
-          <label style={{ display:'flex', flexDirection:'column', gap:4, fontSize:12, fontWeight:600, color:'var(--primary-color)' }}>Email
-            <input type="email" value={formEmail} onChange={e=>setFormEmail(e.target.value)} style={{ padding:'0.6rem 0.7rem', border:'2px solid var(--primary-color)', borderRadius:8, fontSize:13 }} />
-          </label>
-          <div style={{ display:'grid', gap:'.75rem', gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))' }}>
-            <label style={{ display:'flex', flexDirection:'column', gap:4, fontSize:12, fontWeight:600, color:'var(--primary-color)' }}>Telefone
-              <input value={formatPhone(formPhone)} onChange={e=>handlePhoneChange(e.target.value)} style={{ padding:'0.6rem 0.7rem', border:'2px solid var(--primary-color)', borderRadius:8, fontSize:13 }} />
-            </label>
-            <label style={{ display:'flex', flexDirection:'column', gap:4, fontSize:12, fontWeight:600, color:'var(--primary-color)' }}>CPF
-              <input value={formatCPF(formCpf)} onChange={e=>handleCpfChange(e.target.value)} style={{ padding:'0.6rem 0.7rem', border:'2px solid var(--primary-color)', borderRadius:8, fontSize:13 }} />
-            </label>
+
+          <div className="info-grid">
+            <div className="info-item">
+              <span className="info-label">Telefone</span>
+              {editOpen ? (
+                <input className="profile-input" value={formatPhone(formPhone)} onChange={e=>handlePhoneChange(e.target.value)} placeholder="(00) 00000-0000" />
+              ) : (
+                <span className="info-value">{formatPhone(phone) || '—'}</span>
+              )}
+            </div>
+            <div className="info-item">
+              <span className="info-label">CPF</span>
+              {editOpen ? (
+                <input className="profile-input" value={formatCPF(formCpf)} onChange={e=>handleCpfChange(e.target.value)} placeholder="000.000.000-00" />
+              ) : (
+                <span className="info-value">{formatCPF(cpf) || '—'}</span>
+              )}
+            </div>
+            <div className="info-item">
+              <span className="info-label">Endereço</span>
+              {editOpen ? (
+                <div className="address-field">
+                  <input
+                    className="profile-input"
+                    value={formAddress}
+                    onChange={e=>setFormAddress(e.target.value)}
+                    onFocus={()=>setShowAddrSug(true)}
+                    onBlur={()=> setTimeout(()=> setShowAddrSug(false), 150)}
+                    placeholder="Rua, número, bairro, cidade"
+                  />
+                  {showAddrSug && (
+                    <div className="address-dropdown" role="listbox">
+                      {!import.meta.env.VITE_GEOAPIFY_KEY && !import.meta.env.VITE_MAPBOX_TOKEN && (
+                        <div className="address-error">Configure VITE_GEOAPIFY_KEY (gratuito) ou VITE_MAPBOX_TOKEN para habilitar sugestões.</div>
+                      )}
+                      {addrError && <div className="address-error">{addrError}</div>}
+                      {addrLoading && <div className="address-empty">Procurando...</div>}
+                      {!addrLoading && formAddress.trim().length<3 && (
+                        <div className="address-empty">Digite pelo menos 3 caracteres</div>
+                      )}
+                      {!addrLoading && formAddress.trim().length>=3 && addrSuggestions.length===0 && !addrError && (
+                        <div className="address-empty">Nenhuma sugestão</div>
+                      )}
+                      {!addrLoading && addrSuggestions.map(s => (
+                        <button
+                          type="button"
+                          key={s}
+                          className="address-opt"
+                          role="option"
+                          onMouseDown={e=> e.preventDefault()}
+                          onClick={()=>{ setFormAddress(s); setShowAddrSug(false) }}
+                          title={s}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <span className="info-value">{address || '—'}</span>
+              )}
+            </div>
           </div>
-          {saveError && <div style={{ fontSize:12, fontWeight:600, color:'#b91c1c' }}>{saveError}</div>}
+
+          {editOpen && (
+            <div className="profile-actions">
+              <button type="button" className="profile-action secondary" onClick={cancelEdit}>Cancelar</button>
+              <button type="button" className="profile-action primary" onClick={handleSave} disabled={saving || !formName.trim() || !formEmail.trim()}>
+                {saving ? 'Salvando...' : 'Salvar'}
+              </button>
+            </div>
+          )}
+          {saveError && (
+            <div className="profile-error" role="alert" aria-live="assertive">{saveError}</div>
+          )}
         </div>
-        <ModalFooter>
-          <ModalAction $variant="secondary" type="button" onClick={()=>setEditOpen(false)}>Cancelar</ModalAction>
-          <ModalAction type="button" disabled={saving || !formName.trim() || !formEmail.trim()} onClick={handleSave}>{saving? 'Salvando...' : 'Salvar'}</ModalAction>
-        </ModalFooter>
-      </Modal>
+      </section>
+
+      <Sidebar open={open} displayName={name} onClose={() => setOpen(false)} onSignOut={handleSignOut} onNavigate={onNavigate} activePage="profile" />
     </div>
   )
 }

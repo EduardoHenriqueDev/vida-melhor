@@ -41,8 +41,17 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
     const loadUser = async () => {
       const { data } = await supabase.auth.getUser()
       const user = data.user
-      const name = (user?.user_metadata as any)?.name as string | undefined
-      setDisplayName(name || user?.email || 'Usuário')
+      let profileName: string | undefined
+      if (user?.id) {
+        const { data: prof, error } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('id', user.id)
+          .maybeSingle()
+        if (!error) profileName = (prof as any)?.name
+      }
+      const metaName = (user?.user_metadata as any)?.name as string | undefined
+      setDisplayName(profileName || metaName || user?.email || 'Usuário')
       setIsCarer(!!(user?.user_metadata as any)?.carer)
     }
     loadUser()
@@ -139,6 +148,23 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
     await signOut()
     onSignOut()
   }
+
+  useEffect(() => {
+    const listener = (e: any) => { if(e?.detail?.name) setDisplayName(e.detail.name) }
+    window.addEventListener('profile-updated', listener)
+    return () => window.removeEventListener('profile-updated', listener)
+  }, [])
+
+  useEffect(() => {
+    try {
+      const last = localStorage.getItem('last_page')
+      if (last && last !== 'home') {
+        onNavigate(last as any)
+        return
+      }
+    } catch {}
+    try { localStorage.setItem('last_page', 'home') } catch {}
+  }, [onNavigate])
 
   return (
     <div className="home-container">
