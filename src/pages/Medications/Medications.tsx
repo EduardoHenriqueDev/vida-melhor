@@ -12,7 +12,7 @@ import { FaCartPlus } from 'react-icons/fa'
 
 interface MedicationsProps {
   onBack?: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'medications') => void
+  onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications') => void
 }
 
 const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
@@ -60,7 +60,7 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
 
   return (
     <div className="medications-container">
-      <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} />
+      <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} onNavigate={onNavigate} />
       <Sidebar
         open={open}
         displayName={displayName}

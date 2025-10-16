@@ -81,3 +81,7 @@
     width: auto;
     display: block;
 }
+
+.nav-logo.clickable {
+    cursor: pointer;
+}

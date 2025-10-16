@@ -8,8 +8,8 @@ interface SidebarProps {
   displayName: string
   onClose: () => void
   onSignOut: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'medications') => void
-  activePage?: 'home' | 'profile' | 'pharmacies' | 'medications' // + active page
+  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'medications' | 'cuidador') => void
+  activePage?: 'home' | 'profile' | 'pharmacies' | 'medications' | 'cuidador'
 }
 
 const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage }: SidebarProps) => {
@@ -100,7 +100,14 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
             >
               Farmácias
             </a>
-            <a href="#" className="sidebar-link" onClick={(e) => { e.preventDefault(); onClose(); }}>Consultas</a>
+            <a
+              href="#"
+              className={`sidebar-link ${activePage === 'cuidador' ? 'active' : ''}`}
+              onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','cuidador')}catch{}; onNavigate?.('cuidador'); onClose(); }}
+            >
+              Cuidador
+            </a>
+            <a href="#" className="sidebar-link" onClick={(e)=>{ e.preventDefault(); onClose() }}>Consultas</a>
           </nav>
         </div>
 

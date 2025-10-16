@@ -277,7 +277,7 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
 
   return (
     <div className="home-container">
-      <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} />
+      <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} onNavigate={onNavigate} />
 
       <section className="profile-hero">
         <div className="profile-hero-inner">

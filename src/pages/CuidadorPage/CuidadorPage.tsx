@@ -1,11 +1,19 @@
+import Navbar from '../../components/Navbar/Navbar'
+import Sidebar from '../../components/Sidebar/Sidebar'
+
 interface CuidadorPageProps {
   onSignOut: () => void
   onNavigate: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications') => void
 }
 
 const CuidadorPage = ({ onSignOut, onNavigate }: CuidadorPageProps) => {
+  const handleSignOut = async () => { onSignOut() }
+  const displayName = ''
+  const open = false
   return (
     <div className="home-container" style={{ padding: '2rem', textAlign: 'center' }}>
+      <Navbar onSignOut={handleSignOut} onOpenMenu={() => {}} onNavigate={onNavigate} />
+      <Sidebar open={open} displayName={displayName} onClose={() => {}} onSignOut={handleSignOut} onNavigate={onNavigate} activePage="cuidador" />
       <h1 style={{ color: 'var(--primary-color)' }}>Tela do Cuidador</h1>
       <p>Conteúdo para o cuidador será exibido aqui.</p>
       <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem' }}>

@@ -168,12 +168,18 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
 
   return (
     <div className="home-container">
-      <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} />
+      <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} onNavigate={onNavigate} />
 
       <div className="home-welcome">
         <div className="welcome">
-          <span className="welcome-top">Bem-vindo(a),</span>
-          <span className="welcome-name">{displayName}</span>
+          <a
+            href="#"
+            className="welcome-link"
+            onClick={(e) => { e.preventDefault(); onNavigate('profile') }}
+            title="Ir para o perfil"
+          >
+            <span className="welcome-top">Bem-vindo(a),</span>{' '}<span className="welcome-name">{displayName}</span>
+          </a>
         </div>
         <CartIcon count={count} />
       </div>

@@ -241,3 +241,14 @@
     font-size: .85rem;
     font-weight: 700
 }
+
+.profile-textarea {
+    resize: none;
+    overflow: hidden;
+    min-height: 48px;
+    line-height: 1.25
+}
+
+@media (min-width: 1024px){
+  .info-item.address{ grid-column: 1 / -1; }
+}
