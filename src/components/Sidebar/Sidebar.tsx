@@ -8,14 +8,14 @@ interface SidebarProps {
   displayName: string
   onClose: () => void
   onSignOut: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'medications' | 'cuidador') => void
-  activePage?: 'home' | 'profile' | 'pharmacies' | 'medications' | 'cuidador'
+  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'medications' | 'cuidador' | 'consultas') => void
+  activePage?: 'home' | 'profile' | 'pharmacies' | 'medications' | 'cuidador' | 'consultas'
 }
 
 const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage }: SidebarProps) => {
   const [name, setName] = useState<string>(displayName)
   const [email, setEmail] = useState<string>('')
-  const [isCarer, setIsCarer] = useState(false)
+  const [isCarer, setisCarer] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -27,19 +27,19 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
       if (user?.id) {
         const { data: prof, error } = await supabase
           .from('profiles')
-          .select('name, carer')
+          .select('name, role')
           .eq('id', user.id)
           .maybeSingle()
 
         if (!error) {
           profileName = (prof as any)?.name
-          setIsCarer(!!(prof as any)?.carer)
+          setisCarer(!!(prof as any)?.role)
         }
       }
 
       setName(profileName || displayName || metaName || user?.email || 'Usuário')
       setEmail(user?.email || '')
-      if (!profileName) setIsCarer(!!(user?.user_metadata as any)?.carer)
+      if (!profileName) setisCarer(!!(user?.user_metadata as any)?.role)
     }
 
     load()
@@ -121,7 +121,11 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
               </a>
             )}
 
-            <a href="#" className="sidebar-link" onClick={(e) => { e.preventDefault(); onClose(); }}>
+            <a
+              href="#"
+              className={`sidebar-link ${activePage === 'consultas' ? 'active' : ''}`}
+              onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','consultas')}catch{}; onNavigate?.('consultas'); onClose(); }}
+            >
               Consultas
             </a>
           </nav>

@@ -90,7 +90,7 @@ create table if not exists public.profiles (
   email text not null unique,
   cpf text not null unique,
   phone text not null,
-  carer boolean default false,
+  role boolean default false,
   created_at timestamptz default now()
 );
 
@@ -113,13 +113,13 @@ Se a confirmação de e-mail estiver habilitada, crie um trigger para inserir o 
 create or replace function public.handle_new_profile()
 returns trigger as $$
 begin
-  insert into public.profiles (id, name, email, cpf, phone, carer)
+  insert into public.profiles (id, name, email, cpf, phone, role)
   values (new.id,
           coalesce(new.raw_user_meta_data->>'name',''),
           new.email,
           coalesce(new.raw_user_meta_data->>'cpf',''),
           coalesce(new.raw_user_meta_data->>'phone',''),
-          (new.raw_user_meta_data->>'carer')::boolean)
+          (new.raw_user_meta_data->>'role')::boolean)
   on conflict (id) do nothing;
   return new;
 end;
@@ -139,7 +139,7 @@ Observações:
   3) Se o `id` sendo enviado é exatamente `auth.uid()`.
 
 ## Permitir cuidadores listarem idosos
-Para que usuários marcados como cuidadores consigam visualizar todos os perfis de idosos (carer = false) na tela do Cuidador, adicione a seguinte policy na tabela `profiles`:
+Para que usuários marcados como cuidadores consigam visualizar todos os perfis de idosos (role = false) na tela do Cuidador, adicione a seguinte policy na tabela `profiles`:
 
 ```sql
 create policy "Caregivers can select elderly" on public.profiles
@@ -148,10 +148,10 @@ create policy "Caregivers can select elderly" on public.profiles
     -- Usuário logado é cuidador
     exists (
       select 1 from public.profiles p
-      where p.id = auth.uid() and p.carer = true
+      where p.id = auth.uid() and p.role = true
     )
     -- E o registro consultado é de idoso
-    and carer = false
+    and role = false
   );
 ```
 

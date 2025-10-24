@@ -15,14 +15,14 @@ import { getPharmacies } from '../../services/pharmaciesService'
 interface HomeProps {
   onSignOut: () => void
   onNavigate: (
-    page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications'
+    page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications' | 'consultas'
   ) => void
 }
 
 const Home = ({ onSignOut, onNavigate }: HomeProps) => {
   const [displayName, setDisplayName] = useState<string>('')
   const [open, setOpen] = useState(false)
-  const [isCarer, setIsCarer] = useState(false)
+  const [isCarer, setisCarer] = useState(false)
   const { count } = useCart()
   const [meds, setMeds] = useState<Medication[]>([])
   const [medsLoading, setMedsLoading] = useState(true)
@@ -52,7 +52,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       }
       const metaName = (user?.user_metadata as any)?.name as string | undefined
       setDisplayName(profileName || metaName || user?.email || 'Usuário')
-      setIsCarer(!!(user?.user_metadata as any)?.carer)
+      setisCarer(!!(user?.user_metadata as any)?.role)
     }
     loadUser()
   }, [])
@@ -338,7 +338,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
             <FaClinicMedical className="icon" />
             <span>Farmácias</span>
           </button>
-          <button type="button" className="home-action-button" aria-label="Consultas">
+          <button type="button" className="home-action-button" aria-label="Consultas" onClick={() => onNavigate('consultas')}>
             <FaCalendarAlt className="icon" />
             <span>Consultas</span>
           </button>
@@ -353,10 +353,10 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
           </button>
         </div>
         {isCarer && (
-          <div className="home-carer">
+          <div className="home-role">
             <button
               type="button"
-              className="home-action-button carer"
+              className="home-action-button role"
               aria-label="Cuidador"
               onClick={() => onNavigate('cuidador')}
             >

@@ -61,6 +61,30 @@
   justify-content:space-between;
 }
 
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.add-elder-btn {
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+  transition: background .15s ease, transform .1s ease;
+}
+.add-elder-btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
+.add-elder-btn:active { transform: translateY(0); }
+
 .card-body {
   display:flex;
   flex-direction:column;
