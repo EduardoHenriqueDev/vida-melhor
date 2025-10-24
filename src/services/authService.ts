@@ -6,7 +6,7 @@ export type SignUpInput = {
   password: string
   cpf: string
   phone: string
-  carer: boolean
+  role: boolean
 }
 
 const PENDING_PROFILE_KEY = 'supabase_pending_profile'
@@ -16,14 +16,14 @@ export async function signUpWithProfile(input: SignUpInput) {
   const cleanName = input.name.trim()
   const cleanCpf = input.cpf.replace(/\D/g, '')
   const cleanPhone = input.phone.replace(/\D/g, '')
-  const { email, password, carer } = input
+  const { email, password, role } = input
 
   // 🧾 Cria conta no Supabase Auth com metadados
   const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { name: cleanName, cpf: cleanCpf, phone: cleanPhone, carer },
+      data: { name: cleanName, cpf: cleanCpf, phone: cleanPhone, role },
     },
   })
   if (signUpError) throw signUpError
@@ -41,7 +41,7 @@ export async function signUpWithProfile(input: SignUpInput) {
         email,
         cpf: cleanCpf,
         phone: cleanPhone,
-        carer,
+        role,
       })
 
     upserted = !insertError
@@ -58,7 +58,7 @@ export async function signUpWithProfile(input: SignUpInput) {
           email,
           cpf: cleanCpf,
           phone: cleanPhone,
-          carer,
+          role,
         })
       )
     } catch {}
@@ -79,12 +79,12 @@ export async function ensureUserProfile() {
   // Busca dados já existentes
   const { data: existing } = await supabase
     .from('profiles')
-    .select('id, name, email, cpf, phone, carer')
+    .select('id, name, email, cpf, phone, role')
     .eq('id', user.id)
     .maybeSingle()
 
   // Busca dados pendentes salvos localmente
-  let pending: Partial<{ name: string; cpf: string; phone: string; carer: boolean }> = {}
+  let pending: Partial<{ name: string; cpf: string; phone: string; role: boolean }> = {}
   try {
     const raw = localStorage.getItem(PENDING_PROFILE_KEY)
     if (raw) pending = JSON.parse(raw) ?? {}
@@ -95,7 +95,7 @@ export async function ensureUserProfile() {
   const inputName = (pending.name ?? '').toString().trim()
   const inputCpf = (pending.cpf ?? '').toString().replace(/\D/g, '')
   const inputPhone = (pending.phone ?? '').toString().replace(/\D/g, '')
-  const inputCarer = pending.carer ?? meta.carer ?? existing?.carer ?? false
+  const inputrole = pending.role ?? meta.role ?? existing?.role ?? false
 
   const metaName = (meta.name ?? '').toString().trim()
   const metaCpf = (meta.cpf ?? '').toString().replace(/\D/g, '')
@@ -108,7 +108,7 @@ export async function ensureUserProfile() {
     email: user.email || existing?.email || '',
     cpf: inputCpf || metaCpf || existing?.cpf || '',
     phone: inputPhone || metaPhone || existing?.phone || '',
-    carer: inputCarer,
+    role: inputrole,
   }
 
   const { error: upsertError } = await supabase.from('profiles').upsert(payload)

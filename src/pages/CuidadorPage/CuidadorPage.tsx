@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient'
 import Navbar from '../../components/Navbar/Navbar'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import './CuidadorPage.css'
+import { FaPlus } from 'react-icons/fa'
 
 interface CuidadorPageProps {
   onSignOut: () => void
@@ -15,14 +16,14 @@ type ProfileRow = {
   name: string
   email: string
   phone: string
-  carer?: boolean
+  role?: boolean
 }
 
 const CuidadorPage = ({ onSignOut, onNavigate, onBack }: CuidadorPageProps) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [elderly, setElderly] = useState<ProfileRow[]>([])
-  const [isCarer, setIsCarer] = useState(false)
+  const [isCarer, setisCarer] = useState(false)
   const [open, setOpen] = useState(false)
   const [displayName, setDisplayName] = useState('Usuário')
 
@@ -59,14 +60,14 @@ const CuidadorPage = ({ onSignOut, onNavigate, onBack }: CuidadorPageProps) => {
         try {
           const { data: me } = await supabase
             .from('profiles')
-            .select('carer, name')
+            .select('role, name')
             .eq('id', user.id)
             .maybeSingle()
 
           const meta = (user?.user_metadata as any) || {}
-          const metaCarer = !!meta?.carer
+          const metarole = !!meta?.role
 
-          setIsCarer(!!(me as any)?.carer || metaCarer)
+          setisCarer(!!(me as any)?.role || metarole)
           setDisplayName((me as any)?.name || meta?.name || user?.email || 'Usuário')
         } catch {
           const meta = (user?.user_metadata as any) || {}
@@ -76,8 +77,8 @@ const CuidadorPage = ({ onSignOut, onNavigate, onBack }: CuidadorPageProps) => {
         // Busca todos os perfis que não são cuidadores
         const { data, error } = await supabase
           .from('profiles')
-          .select('id,name,email,phone,carer')
-          .not('carer', 'eq', true)
+          .select('id,name,email,phone,role')
+          .not('role', 'eq', true)
           .order('name', { ascending: true })
 
         if (error) throw error
@@ -156,8 +157,19 @@ const CuidadorPage = ({ onSignOut, onNavigate, onBack }: CuidadorPageProps) => {
           <div className="grid">
             {elderly.map((p) => (
               <div key={p.id} className="card">
-                <div className="card-body">
+                <div className="card-header">
                   <h3 className="name" title={p.name}>{p.name || '—'}</h3>
+                  <button
+                    type="button"
+                    className="add-elder-btn"
+                    aria-label={`Adicionar ${p.name || 'idoso'}`}
+                    title="Adicionar"
+                    onClick={() => { /* ação futura: abrir modal ou criar vínculo */ }}
+                  >
+                    <FaPlus />
+                  </button>
+                </div>
+                <div className="card-body">
                   <div style={{ fontSize: 12, color: '#4b5563', wordBreak: 'break-all' }} title={p.email}>{p.email || '—'}</div>
                   <div style={{ fontSize: 12, color: '#4b5563' }} title={formatPhone(p.phone)}>{formatPhone(p.phone) || '—'}</div>
                 </div>

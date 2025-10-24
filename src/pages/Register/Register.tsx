@@ -82,7 +82,7 @@ const Register = ({ onSwitchToLogin }: RegisterProps) => {
         cpf: formData.cpf.replace(/\D/g, ''),
         phone: formData.phone.replace(/\D/g, ''),
         password: formData.password,
-        carer: formData.role === 'cuidador',
+        role: formData.role === 'cuidador',
       })
       await ensureUserProfile()
       // eslint-disable-next-line no-alert
