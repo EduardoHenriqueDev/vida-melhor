@@ -670,7 +670,7 @@
 }
 
 @media (min-width: 1024px) {
-  .welcome { flex-direction: row !important; align-items: baseline; gap: 0.5rem; }
+  .welcome { flex-direction: row !important; align-items: baseline; gap: 0.35rem; }
   .welcome-top, .welcome-name { font-size: 1.25rem !important; }
 }
 
@@ -730,3 +730,13 @@
 .item-meta { font-size:0.6rem; color:#6b7280; line-height:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .item-meta.out-of-stock { color:#dc2626; font-weight:600; }
 @media (min-width:1024px){ .search-results { width:min(100% - 12rem,960px); } }
+
+.welcome { flex-direction: column !important; }
+
+/* override: manter em linha */
+.welcome { flex-direction: row !important; align-items: baseline; gap: 0.35rem; }
+
+.welcome-link{ color: inherit; text-decoration: underline; font-weight: 700; cursor: pointer; display:inline-flex; gap:.35rem; align-items: baseline; }
+.welcome-link:hover{ text-decoration-thickness: 2px; }
+/* remover sublinhado duplicado do nome-link anterior */
+.welcome-name-link{ text-decoration: none; }

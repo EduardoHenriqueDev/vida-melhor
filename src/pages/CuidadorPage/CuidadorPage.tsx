@@ -26,7 +26,7 @@ const CuidadorPage = ({ onSignOut, onNavigate, onBack }: CuidadorPageProps) => {
   const [open, setOpen] = useState(false)
   const [displayName, setDisplayName] = useState('Usuário')
 
-  // Helper para formatar telefone em exibição
+  // Formata telefone para exibição
   const formatPhone = (v: string) => {
     const d = (v || '').replace(/\D/g, '').slice(0, 11)
     if (!d) return ''
@@ -37,7 +37,7 @@ const CuidadorPage = ({ onSignOut, onNavigate, onBack }: CuidadorPageProps) => {
     return `(${ddd}) ${r.slice(0, 5)}-${r.slice(5)}`
   }
 
-  // Persistência de navegação para voltar dentro do app
+  // Guarda a página anterior para facilitar navegação
   useEffect(() => {
     try {
       const prev = localStorage.getItem('last_page')
@@ -55,15 +55,17 @@ const CuidadorPage = ({ onSignOut, onNavigate, onBack }: CuidadorPageProps) => {
         const user = userResp.user
         if (!user) throw new Error('Sessão expirada')
 
-        // Descobre se o usuário é cuidador a partir do perfil ou metadata e carrega displayName
+        // Carrega perfil do usuário
         try {
           const { data: me } = await supabase
             .from('profiles')
             .select('carer, name')
             .eq('id', user.id)
             .maybeSingle()
+
           const meta = (user?.user_metadata as any) || {}
           const metaCarer = !!meta?.carer
+
           setIsCarer(!!(me as any)?.carer || metaCarer)
           setDisplayName((me as any)?.name || meta?.name || user?.email || 'Usuário')
         } catch {
@@ -71,12 +73,13 @@ const CuidadorPage = ({ onSignOut, onNavigate, onBack }: CuidadorPageProps) => {
           setDisplayName(meta?.name || user?.email || 'Usuário')
         }
 
-        // Busca todos os idosos (não cuidadores)
+        // Busca todos os perfis que não são cuidadores
         const { data, error } = await supabase
           .from('profiles')
           .select('id,name,email,phone,carer')
           .not('carer', 'eq', true)
           .order('name', { ascending: true })
+
         if (error) throw error
         setElderly((data || []) as ProfileRow[])
       } catch (e: any) {
@@ -85,6 +88,7 @@ const CuidadorPage = ({ onSignOut, onNavigate, onBack }: CuidadorPageProps) => {
         setLoading(false)
       }
     }
+
     load()
   }, [])
 
@@ -114,7 +118,16 @@ const CuidadorPage = ({ onSignOut, onNavigate, onBack }: CuidadorPageProps) => {
 
       <div className="cuidador-header">
         <button type="button" className="back-icon-btn" onClick={handleBack} aria-label="Voltar">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>

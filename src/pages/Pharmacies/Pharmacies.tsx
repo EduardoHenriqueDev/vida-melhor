@@ -9,7 +9,7 @@ import Loading from '../../components/Loading/Loading'
 
 interface PharmaciesProps {
   onBack?: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'medications') => void
+  onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications') => void
 }
 
 const Pharmacies = ({ onBack, onNavigate }: PharmaciesProps) => {
@@ -61,7 +61,7 @@ const Pharmacies = ({ onBack, onNavigate }: PharmaciesProps) => {
 
   return (
     <div className="pharmacies-container">
-      <Navbar displayName={displayName} onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} />
+      <Navbar displayName={displayName} onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} onNavigate={onNavigate} />
       <Sidebar
         open={open}
         displayName={displayName}
