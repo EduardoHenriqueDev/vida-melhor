@@ -8,7 +8,7 @@ import './Profile.css'
 
 interface ProfileProps {
   onSignOut: () => void
-  onNavigate: (page: 'home' | 'profile' | 'pharmacies' | 'medications' | 'cuidador') => void
+  onNavigate: (page: 'home' | 'profile' | 'pharmacies' | 'store' | 'cuidador') => void
 }
 
 const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
@@ -24,6 +24,8 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
   const [formCpf, setFormCpf] = useState('')
   const [address, setAddress] = useState<string>('')
   const [formAddress, setFormAddress] = useState('')
+  const [specialCare, setSpecialCare] = useState<string>('')
+  const [formSpecialCare, setFormSpecialCare] = useState('')
   const [saving, setSaving] = useState(false)
   // remove saveError unused warning but keep state for UI errors
   const [saveError, setSaveError] = useState<string|null>(null)
@@ -41,7 +43,7 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
       if (user?.id) {
         const { data: profile, error: profErr } = await supabase
           .from('profiles')
-          .select('name, email, phone, cpf, adress')
+          .select('name, email, phone, cpf, adress, special_care')
           .eq('id', user.id)
           .maybeSingle()
 
@@ -49,7 +51,7 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
         if (profErr && ((profErr as any).code === '42703' || /column .*adress/i.test(profErr.message))) {
           const { data: prof2 } = await supabase
             .from('profiles')
-            .select('name, email, phone, cpf, address')
+            .select('name, email, phone, cpf, address, special_care')
             .eq('id', user.id)
             .maybeSingle()
           if (prof2) prof = { ...prof2, adress: (prof2 as any).address }
@@ -60,11 +62,13 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
         setPhone(prof?.phone || meta?.phone || '')
         setCpf(prof?.cpf || meta?.cpf || '')
         setAddress(prof?.adress || meta?.address || '')
+        setSpecialCare(prof?.special_care || meta?.special_care || '')
         setFormName(prof?.name || meta?.name || user?.email || 'Usuário')
         setFormEmail(prof?.email || user?.email || '')
         setFormPhone((prof?.phone || meta?.phone || '').replace(/\D/g,'').slice(0,11))
         setFormCpf((prof?.cpf || meta?.cpf || '').replace(/\D/g,'').slice(0,11))
         setFormAddress((prof?.adress || meta?.address || ''))
+        setFormSpecialCare((prof?.special_care || meta?.special_care || ''))
       } else {
         setName(meta?.name || user?.email || 'Usuário')
         setEmail(user?.email || '')
@@ -72,6 +76,8 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
         setCpf((meta?.cpf || '').replace(/\D/g,'').slice(0,11))
         setAddress(meta?.address || '')
         setFormAddress(meta?.address || '')
+        setSpecialCare(meta?.special_care || '')
+        setFormSpecialCare(meta?.special_care || '')
       }
     }
     load()
@@ -120,6 +126,7 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
     setFormPhone(phone)
     setFormCpf(cpf)
     setFormAddress(address)
+    setFormSpecialCare(specialCare)
     setEditOpen(true)
   }
   const cancelEdit = () => {
@@ -128,6 +135,7 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
     setFormPhone((phone || '').replace(/\D/g,'').slice(0,11))
     setFormCpf((cpf || '').replace(/\D/g,'').slice(0,11))
     setFormAddress(address || '')
+    setFormSpecialCare(specialCare || '')
     setEditOpen(false)
   }
 
@@ -137,6 +145,7 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
       const cleanCpf = formCpf.replace(/\D/g,'').slice(0,11)
       const cleanPhone = formPhone.replace(/\D/g,'').slice(0,11)
       const cleanAddress = (formAddress || '').trim()
+      const cleanSpecial = (formSpecialCare || '').trim()
       const { data: userResp } = await supabase.auth.getUser()
       const user = userResp.user
       if(!user) throw new Error('Sessão expirada')
@@ -152,9 +161,9 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .update({ name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, adress: cleanAddress })
+          .update({ name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, adress: cleanAddress, special_care: cleanSpecial })
           .eq('id', user.id)
-          .select('id, name, email, phone, cpf, adress')
+          .select('id, name, email, phone, cpf, adress, special_care')
           .maybeSingle()
         updated = data
         updErr = error
@@ -164,9 +173,9 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
       if (updErr && ((updErr as any).code === '42703' || /adress/i.test(updErr.message))) {
         const { data, error } = await supabase
           .from('profiles')
-          .update({ name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, address: cleanAddress })
+          .update({ name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, address: cleanAddress, special_care: cleanSpecial })
           .eq('id', user.id)
-          .select('id, name, email, phone, cpf, address')
+          .select('id, name, email, phone, cpf, address, special_care')
           .maybeSingle()
         updated = data ? { ...data, adress: (data as any).address } : null
         updErr = error
@@ -180,13 +189,13 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
         try {
           const { error } = await supabase
             .from('profiles')
-            .insert({ id: user.id, name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, email: formEmail.trim(), adress: cleanAddress })
+            .insert({ id: user.id, name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, email: formEmail.trim(), adress: cleanAddress, special_care: cleanSpecial })
           insErr = error
         } catch (e:any) { insErr = e }
         if (insErr && ((insErr as any).code === '42703' || /adress/i.test(insErr.message))) {
           const { error } = await supabase
             .from('profiles')
-            .insert({ id: user.id, name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, email: formEmail.trim(), address: cleanAddress })
+            .insert({ id: user.id, name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, email: formEmail.trim(), address: cleanAddress, special_care: cleanSpecial })
           if (error) throw error
         } else if (insErr) {
           throw insErr
@@ -194,14 +203,14 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
         // Refetch após insert
         const { data: profIns, error: profInsErr } = await supabase
           .from('profiles')
-          .select('name, email, phone, cpf, adress')
+          .select('name, email, phone, cpf, adress, special_care')
           .eq('id', user.id)
           .maybeSingle()
         let profFinal = profIns as any
         if (profInsErr && ((profInsErr as any).code === '42703' || /adress/i.test(profInsErr.message))) {
           const { data: profIns2 } = await supabase
             .from('profiles')
-            .select('name, email, phone, cpf, address')
+            .select('name, email, phone, cpf, address, special_care')
             .eq('id', user.id)
             .maybeSingle()
           profFinal = profIns2 ? { ...profIns2, adress: (profIns2 as any).address } : null
@@ -212,10 +221,11 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
           setPhone((profFinal.phone || cleanPhone))
           setCpf((profFinal.cpf || cleanCpf))
           setAddress((profFinal.adress || cleanAddress))
+          setSpecialCare((profFinal.special_care || cleanSpecial))
         }
       }
       // Atualiza metadados para outros componentes enxergarem
-      await supabase.auth.updateUser({ data: { name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, address: cleanAddress } })
+      await supabase.auth.updateUser({ data: { name: formName.trim(), phone: cleanPhone, cpf: cleanCpf, address: cleanAddress, special_care: cleanSpecial } })
       // Dispara evento global
       try { window.dispatchEvent(new CustomEvent('profile-updated', { detail: { name: formName.trim() } })) } catch {}
       setName(formName.trim());
@@ -223,12 +233,13 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
       setPhone(cleanPhone);
       setCpf(cleanCpf);
       setAddress(cleanAddress);
+      setSpecialCare(cleanSpecial);
       setEditOpen(false)
       try { localStorage.setItem('last_page','profile') } catch {}
     } catch(e:any) {
       setSaveError(e.message || 'Erro ao salvar')
     } finally { setSaving(false) }
-  }, [formName, formEmail, formPhone, formCpf, email])
+  }, [formName, formEmail, formPhone, formCpf, email, formAddress, formSpecialCare])
 
   const handlePhoneChange = (v: string) => { const digits = v.replace(/\D/g,'').slice(0,11); setFormPhone(digits) }
   const handleCpfChange = (v: string) => { const digits = v.replace(/\D/g,'').slice(0,11); setFormCpf(digits) }
@@ -373,6 +384,14 @@ const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
                 </div>
               ) : (
                 <span className="info-value">{address || '—'}</span>
+              )}
+            </div>
+            <div className="info-item">
+              <span className="info-label">Cuidados especiais</span>
+              {editOpen ? (
+                <input className="profile-input" value={formSpecialCare} onChange={e=>setFormSpecialCare(e.target.value)} placeholder="Ex.: alergias, restrições" />
+              ) : (
+                <span className="info-value">{specialCare || '—'}</span>
               )}
             </div>
           </div>

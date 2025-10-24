@@ -7,7 +7,7 @@ import { FaPlus } from 'react-icons/fa'
 
 interface CuidadorPageProps {
   onSignOut: () => void
-  onNavigate: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications' | 'consultas') => void
+  onNavigate: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store') => void
   onBack?: () => void
 }
 
@@ -97,7 +97,7 @@ const CuidadorPage = ({ onSignOut, onNavigate, onBack }: CuidadorPageProps) => {
     if (onBack) return onBack()
     try {
       const prev = localStorage.getItem('prev_page') as any
-      const allowed = ['home', 'profile', 'cuidador', 'pharmacies', 'medications']
+      const allowed = ['home', 'profile', 'cuidador', 'pharmacies', 'store']
       const target = allowed.includes(prev) && prev !== 'cuidador' ? prev : 'home'
       onNavigate(target as any)
     } catch {

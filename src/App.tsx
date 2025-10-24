@@ -8,13 +8,14 @@ import { ensureUserProfile } from './services/authService'
 import Profile from './pages/Profile/Profile'
 import CuidadorPage from './pages/CuidadorPage/CuidadorPage'
 import Pharmacies from './pages/Pharmacies/Pharmacies'
-import Medications from './pages/Medications/Medications'
+import Store from './pages/Store/Store'
 import Consultas from './pages/Consultas/Consultas'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<
-    'login' | 'register' | 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications' | 'consultas'
+    'login' | 'register' | 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'consultas'
   >('login')
+
   const [bootstrapped, setBootstrapped] = useState(false)
 
   useEffect(() => {
@@ -52,8 +53,10 @@ function App() {
   const handleSwitchToLogin = () => setCurrentPage('login')
   const handleLoginSuccess = () => setCurrentPage('home')
   const handleSignOut = () => setCurrentPage('login')
-  const handleNavigate = (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications' | 'consultas') =>
-    setCurrentPage(page)
+
+  const handleNavigate = (
+    page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'consultas'
+  ) => setCurrentPage(page)
 
   if (!bootstrapped) {
     return (
@@ -70,24 +73,35 @@ function App() {
       {currentPage === 'login' && (
         <Login onSwitchToRegister={handleSwitchToRegister} onLoginSuccess={handleLoginSuccess} />
       )}
+
       {currentPage === 'register' && (
         <Register onSwitchToLogin={handleSwitchToLogin} />
       )}
+
       {currentPage === 'home' && (
         <Home onSignOut={handleSignOut} onNavigate={handleNavigate} />
       )}
+
       {currentPage === 'profile' && (
         <Profile onSignOut={handleSignOut} onNavigate={handleNavigate} />
       )}
+
       {currentPage === 'cuidador' && (
-        <CuidadorPage onSignOut={handleSignOut} onNavigate={handleNavigate} onBack={() => setCurrentPage('home')} />
+        <CuidadorPage
+          onSignOut={handleSignOut}
+          onNavigate={handleNavigate}
+          onBack={() => setCurrentPage('home')}
+        />
       )}
+
       {currentPage === 'pharmacies' && (
         <Pharmacies onBack={() => setCurrentPage('home')} onNavigate={handleNavigate} />
       )}
-      {currentPage === 'medications' && (
-        <Medications onBack={() => setCurrentPage('home')} onNavigate={handleNavigate} />
+
+      {currentPage === 'store' && (
+        <Store onBack={() => setCurrentPage('home')} onNavigate={handleNavigate} />
       )}
+
       {currentPage === 'consultas' && (
         <Consultas onBack={() => setCurrentPage('home')} onNavigate={handleNavigate} />
       )}
@@ -96,3 +110,4 @@ function App() {
 }
 
 export default App
+

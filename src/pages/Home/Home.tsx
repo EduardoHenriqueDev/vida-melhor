@@ -9,13 +9,13 @@ import { FaClinicMedical, FaCalendarAlt, FaPills, FaUser } from 'react-icons/fa'
 import CartIcon from '../../components/CartIcon/CartIcon'
 import { MdEmergency } from 'react-icons/md'
 import { useCart } from '../../contexts/CartContext'
-import { getMedications, type Medication } from '../../services/medicationsService'
+import { getstore, type Medication } from '../../services/storeService'
 import { getPharmacies } from '../../services/pharmaciesService'
 
 interface HomeProps {
   onSignOut: () => void
   onNavigate: (
-    page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications' | 'consultas'
+    page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store'
   ) => void
 }
 
@@ -77,7 +77,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       setMedsLoading(true)
       setMedsError(null)
       try {
-        const all = await getMedications()
+        const all = await getstore()
         setMeds(all.slice(0, 4))
       } catch (e: any) {
         setMedsError(e?.message ?? 'Erro ao carregar medicamentos')
@@ -124,7 +124,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       try {
         const term = `%${searchTerm.trim()}%`
         const [medsResp, pharmsResp] = await Promise.all([
-          supabase.from('medications').select('id,name,slug,description,is_generic,stock,price_in_cents,category_id,pharmacy_id,created_at').ilike('name', term).limit(8),
+          supabase.from('store').select('id,name,slug,description,is_generic,stock,price_in_cents,category_id,pharmacy_id,created_at').ilike('name', term).limit(8),
           supabase.from('pharmacies').select('id,name,email,address,contact,active').ilike('name', term).limit(8)
         ])
         if (!active) return
@@ -203,7 +203,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
                 <ul className="group-list">
                   {medsFound.map(m => (
                     <li key={m.id}>
-                      <button type="button" className="search-item" onClick={() => onNavigate('medications')}>
+                      <button type="button" className="search-item" onClick={() => onNavigate('store')}>
                         <span className="item-name" title={m.name}>{m.name}</span>
                         {m.stock > 0 ? (
                           <span className="item-meta">{m.stock} un • {(m.price_in_cents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span>
@@ -245,7 +245,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
           <button
             type="button"
             className="see-all"
-            onClick={() => onNavigate('medications')}
+            onClick={() => onNavigate('store')}
           >
             Ver tudo
           </button>
@@ -265,7 +265,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
                 className="med-card mini"
                 role="listitem"
                 aria-label={`Ver ${m.name}`}
-                onClick={() => onNavigate('medications')}
+                onClick={() => onNavigate('store')}
               >
                 <div className="med-mini-header">
                   <span className="med-name" title={m.name}>
@@ -346,7 +346,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
             type="button"
             className="home-action-button"
             aria-label="Medicamentos"
-            onClick={() => onNavigate('medications')}
+            onClick={() => onNavigate('store')}
           >
             <FaPills className="icon" />
             <span>Medicamentos</span>
