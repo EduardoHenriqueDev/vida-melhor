@@ -3,19 +3,19 @@ import Navbar from '../../components/Navbar/Navbar'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import { supabase } from '../../lib/supabaseClient'
 import { signOut } from '../../services/authService'
-import { getMedications, type Medication } from '../../services/medicationsService'
-import './Medications.css'
+import { getstore, type Medication } from '../../services/storeService'
+import './Store.css'
 import Loading from '../../components/Loading/Loading'
 import CartIcon from '../../components/CartIcon/CartIcon'
 import { useCart } from '../../contexts/CartContext'
 import { FaCartPlus } from 'react-icons/fa'
 
-interface MedicationsProps {
+interface storeProps {
   onBack?: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications') => void
+  onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store') => void
 }
 
-const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
+const store = ({ onBack, onNavigate }: storeProps) => {
   const [items, setItems] = useState<Medication[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -36,7 +36,7 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await getMedications()
+        const data = await getstore()
         setItems(data)
       } catch (e: any) {
         setError(e?.message ?? 'Erro ao carregar medicamentos')
@@ -52,14 +52,14 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
   const formatPrice = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
   if (loading) return (
-    <div className="medications-container">
+    <div className="store-container">
       <Loading fullPage />
     </div>
   )
-  if (error) return <div className="medications-container error">{error}</div>
+  if (error) return <div className="store-container error">{error}</div>
 
   return (
-    <div className="medications-container">
+    <div className="store-container">
       <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} onNavigate={onNavigate} />
       <Sidebar
         open={open}
@@ -67,10 +67,10 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
         onClose={() => setOpen(false)}
         onSignOut={handleSignOut}
         onNavigate={onNavigate}
-        activePage="medications"
+        activePage="store"
       />
 
-      <div className="medications-header">
+      <div className="store-header">
         <button type="button" className="back-icon-btn" onClick={handleBack} aria-label="Voltar">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6" />
@@ -119,4 +119,4 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
   )
 }
 
-export default Medications
+export default store

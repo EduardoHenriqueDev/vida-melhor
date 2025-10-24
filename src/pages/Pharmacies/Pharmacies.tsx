@@ -9,7 +9,7 @@ import Loading from '../../components/Loading/Loading'
 
 interface PharmaciesProps {
   onBack?: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications') => void
+  onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store') => void
 }
 
 const Pharmacies = ({ onBack, onNavigate }: PharmaciesProps) => {

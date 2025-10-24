@@ -1,4 +1,4 @@
-.medications-container {
+.store-container {
   min-height: 100vh;
   background: #fff;
   padding: 0;
@@ -6,7 +6,7 @@
   margin: 0 auto;
 }
 
-.medications-header {
+.store-header {
   display: flex;
   align-items: center;
   justify-content: flex-start !important;
@@ -172,8 +172,8 @@
 .out-of-stock { font-size:0.65rem; font-weight:600; color:#dc2626; }
 
 @media (min-width: 1024px) {
-  .medications-container { max-width: none; width: 100%; padding: 0 !important; }
-  .medications-header { width: 100%; }
+  .store-container { max-width: none; width: 100%; padding: 0 !important; }
+  .store-header { width: 100%; }
   .grid { width: calc(100% - 2rem) !important; margin: 0 auto !important; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
   .card { min-height:240px; }

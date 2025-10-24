@@ -8,11 +8,11 @@ import { ensureUserProfile } from './services/authService'
 import Profile from './pages/Profile/Profile'
 import CuidadorPage from './pages/CuidadorPage/CuidadorPage'
 import Pharmacies from './pages/Pharmacies/Pharmacies'
-import Medications from './pages/Medications/Medications'
+import Store from './pages/Store/Store'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<
-    'login' | 'register' | 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications'
+    'login' | 'register' | 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store'
   >('login')
   const [bootstrapped, setBootstrapped] = useState(false)
 
@@ -51,7 +51,7 @@ function App() {
   const handleSwitchToLogin = () => setCurrentPage('login')
   const handleLoginSuccess = () => setCurrentPage('home')
   const handleSignOut = () => setCurrentPage('login')
-  const handleNavigate = (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications') =>
+  const handleNavigate = (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store') =>
     setCurrentPage(page)
 
   if (!bootstrapped) {
@@ -84,8 +84,8 @@ function App() {
       {currentPage === 'pharmacies' && (
         <Pharmacies onBack={() => setCurrentPage('home')} onNavigate={handleNavigate} />
       )}
-      {currentPage === 'medications' && (
-        <Medications onBack={() => setCurrentPage('home')} onNavigate={handleNavigate} />
+      {currentPage === 'store' && (
+        <Store onBack={() => setCurrentPage('home')} onNavigate={handleNavigate} />
       )}
     </div>
   )

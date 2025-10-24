@@ -4,7 +4,7 @@ import './Navbar.css'
 interface NavbarProps {
     onSignOut: () => void
     onOpenMenu?: () => void
-    onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications') => void
+    onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store') => void
     displayName?: string
 }
 

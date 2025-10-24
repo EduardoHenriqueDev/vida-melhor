@@ -13,7 +13,7 @@ export type Medication = {
   created_at: string
 }
 
-export async function getMedications(): Promise<Medication[]> {
+export async function getstore(): Promise<Medication[]> {
   const { data: sessionResp } = await supabase.auth.getSession()
   const session = sessionResp.session
   if (!session) throw new Error('Não autenticado')
