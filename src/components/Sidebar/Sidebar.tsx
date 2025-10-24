@@ -15,6 +15,7 @@ interface SidebarProps {
 const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage }: SidebarProps) => {
   const [name, setName] = useState<string>(displayName)
   const [email, setEmail] = useState<string>('')
+  const [isCarer, setIsCarer] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -22,17 +23,25 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
       const user = data.user
       const metaName = (user?.user_metadata as any)?.name as string | undefined
       let profileName: string | undefined
+
       if (user?.id) {
         const { data: prof, error } = await supabase
           .from('profiles')
-          .select('name')
-            .eq('id', user.id)
+          .select('name, carer')
+          .eq('id', user.id)
           .maybeSingle()
-        if (!error) profileName = (prof as any)?.name
+
+        if (!error) {
+          profileName = (prof as any)?.name
+          setIsCarer(!!(prof as any)?.carer)
+        }
       }
+
       setName(profileName || displayName || metaName || user?.email || 'Usuário')
       setEmail(user?.email || '')
+      if (!profileName) setIsCarer(!!(user?.user_metadata as any)?.carer)
     }
+
     load()
   }, [displayName])
 
@@ -57,7 +66,7 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
         </div>
 
         <div className="sidebar-content">
-          {/* perfil: avatar + nome + email */}
+          {/* Perfil */}
           <div className="sidebar-profile">
             <div className="sidebar-avatar" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="currentColor">
@@ -70,7 +79,7 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
             </div>
           </div>
 
-          {/* links */}
+          {/* Links */}
           <nav className="sidebar-nav" aria-label="Menu lateral">
             <a
               href="#"
@@ -100,14 +109,21 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
             >
               Farmácias
             </a>
-            <a
-              href="#"
-              className={`sidebar-link ${activePage === 'cuidador' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','cuidador')}catch{}; onNavigate?.('cuidador'); onClose(); }}
-            >
-              Cuidador
+
+            {/* Exibe “Cuidador” apenas se o usuário for cuidador */}
+            {isCarer && (
+              <a
+                href="#"
+                className={`sidebar-link ${activePage === 'cuidador' ? 'active' : ''}`}
+                onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','cuidador')}catch{}; onNavigate?.('cuidador'); onClose(); }}
+              >
+                Cuidador
+              </a>
+            )}
+
+            <a href="#" className="sidebar-link" onClick={(e) => { e.preventDefault(); onClose(); }}>
+              Consultas
             </a>
-            <a href="#" className="sidebar-link" onClick={(e)=>{ e.preventDefault(); onClose() }}>Consultas</a>
           </nav>
         </div>
 
