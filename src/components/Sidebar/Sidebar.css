@@ -5,6 +5,7 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity .2s ease;
+  z-index: 90; /* ensure backdrop overlays page content but stays below sidebar */
 }
 .sidebar-backdrop.open {
   opacity: 1;

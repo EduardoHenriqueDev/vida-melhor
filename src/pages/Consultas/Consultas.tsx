@@ -8,7 +8,7 @@ import Modal, { ModalFooter, ModalAction } from '../../components/Modal/Modal'
 
 interface ConsultasProps {
   onBack?: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications' | 'consultas') => void
+  onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications' | 'consultas' | 'store') => void
 }
 
 const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
@@ -42,10 +42,12 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
       setisCarer(!!roleFlag)
     }
     loadUser()
-    try { localStorage.setItem('last_page', 'consultas') } catch {}
+    // registra página anterior e atual
   }, [])
 
-  const handleBack = () => { if (onBack) onBack(); else onNavigate?.('home') }
+  const handleBack = () => {
+    onBack ? onBack() : onNavigate?.('home')
+  }
 
   const handleSave = async () => {
     setFormError(null)

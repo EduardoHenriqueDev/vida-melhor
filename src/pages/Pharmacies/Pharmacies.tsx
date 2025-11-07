@@ -7,9 +7,11 @@ import { supabase } from '../../lib/supabaseClient'
 import { signOut } from '../../services/authService'
 import Loading from '../../components/Loading/Loading'
 
+type Page = 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'medications' | 'consultas'
+
 interface PharmaciesProps {
   onBack?: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store') => void
+  onNavigate?: (page: Page) => void
 }
 
 const Pharmacies = ({ onBack, onNavigate }: PharmaciesProps) => {
@@ -48,8 +50,7 @@ const Pharmacies = ({ onBack, onNavigate }: PharmaciesProps) => {
   }
 
   const handleBack = () => {
-    if (onBack) onBack()
-    else window.history.back()
+    onBack ? onBack() : onNavigate?.('home')
   }
 
   if (loading) return (

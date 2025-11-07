@@ -10,13 +10,15 @@ import CuidadorPage from './pages/CuidadorPage/CuidadorPage'
 import Pharmacies from './pages/Pharmacies/Pharmacies'
 import Store from './pages/Store/Store'
 import Consultas from './pages/Consultas/Consultas'
+import Medications from './pages/Medications/Medications'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<
-    'login' | 'register' | 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'consultas'
+    'login' | 'register' | 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'consultas' | 'medications'
   >('login')
 
   const [bootstrapped, setBootstrapped] = useState(false)
+  const [history, setHistory] = useState<string[]>([])
 
   useEffect(() => {
     const init = async () => {
@@ -55,8 +57,19 @@ function App() {
   const handleSignOut = () => setCurrentPage('login')
 
   const handleNavigate = (
-    page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'consultas'
-  ) => setCurrentPage(page)
+    page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'consultas' | 'medications'
+  ) => {
+    setHistory(h => [...h, currentPage])
+    setCurrentPage(page)
+  }
+  const handleBack = () => {
+    setHistory(h => {
+      if (h.length === 0) { setCurrentPage('home'); return h }
+      const prev = h[h.length - 1]
+      setCurrentPage(prev as any)
+      return h.slice(0, -1)
+    })
+  }
 
   if (!bootstrapped) {
     return (
@@ -90,20 +103,24 @@ function App() {
         <CuidadorPage
           onSignOut={handleSignOut}
           onNavigate={handleNavigate}
-          onBack={() => setCurrentPage('home')}
+          onBack={handleBack}
         />
       )}
 
       {currentPage === 'pharmacies' && (
-        <Pharmacies onBack={() => setCurrentPage('home')} onNavigate={handleNavigate} />
+        <Pharmacies onBack={handleBack} onNavigate={handleNavigate} />
       )}
 
       {currentPage === 'store' && (
-        <Store onBack={() => setCurrentPage('home')} onNavigate={handleNavigate} />
+        <Store onBack={handleBack} onNavigate={handleNavigate} />
       )}
 
       {currentPage === 'consultas' && (
-        <Consultas onBack={() => setCurrentPage('home')} onNavigate={handleNavigate} />
+        <Consultas onBack={handleBack} onNavigate={handleNavigate} />
+      )}
+
+      {currentPage === 'medications' && (
+        <Medications onBack={handleBack} onNavigate={handleNavigate} />
       )}
     </div>
   )

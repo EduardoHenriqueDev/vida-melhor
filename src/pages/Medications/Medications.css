@@ -1,3 +1,4 @@
+/* filepath: c:\vida-melhor\src\pages\Medications\Medications.css */
 .store-container {
   min-height: 100vh;
   background: #fff;
@@ -12,7 +13,6 @@
   justify-content: flex-start !important;
   gap: 0.5rem;
   margin: 0 auto 0.75rem;
-  width: calc(100% - 2rem);
   width: 100% !important;
   padding-right: 0.5rem;
 }
@@ -60,20 +60,31 @@
   flex-direction:column;
   justify-content:space-between;
   min-height: 260px;
-  z-index: 1; /* garante sobreposição da sidebar */
+  position: relative;
+  transition: box-shadow .18s ease, transform .12s ease, border-color .18s ease;
+  border: 1px solid #e5e7eb;
+  background: linear-gradient(#ffffff,#ffffff) padding-box,
+              linear-gradient(135deg,var(--primary-light),var(--secondary-light)) border-box;
+  overflow: hidden; /* garante que a barra decorativa fique dentro dos cantos arredondados */
+  z-index: 1; /* abaixo da sidebar (100) */
 }
+.card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.08); transform: translateY(-3px); }
+.card:active { transform: translateY(-1px); }
 
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  padding-bottom: .35rem;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .name {
   margin: 0;
   font-size: 1.05rem;
   color: #111827;
+  font-weight: 700;
 }
 
 .badge {
@@ -89,20 +100,13 @@
 }
 .badge.brand { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
 
-.meta {
-  margin-top: 0.75rem;
-  display: flex;
-  gap: 1rem;
-  color: #6b7280;
-  flex-wrap: wrap;
-}
-
 .card-body {
   flex:1;
   display:flex;
   flex-direction:column;
   gap:0.4rem;
   margin-top:0.5rem;
+  padding-top: .55rem;
 }
 
 .desc {
@@ -112,27 +116,28 @@
   overflow:hidden;
   display:-webkit-box;
   -webkit-line-clamp:4;
+  line-clamp: 4;
   -webkit-box-orient:vertical;
 }
 
-.inline-meta {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:0.5rem;
-  margin-top:auto;
-}
+.meta { font-size: .7rem; color:#4b5563; display:flex; align-items:center; gap:.35rem; }
+.meta strong { color:#111827; font-weight:700; }
 
-.stock {
-  font-size:0.65rem;
-  color:#6b7280;
+.freq-badge, .last-badge {
+  display:inline-block;
+  padding: .25rem .5rem;
+  font-size: .6rem;
+  font-weight:700;
+  line-height:1;
+  border-radius: 999px;
+  letter-spacing:.3px;
+  background: var(--secondary-light);
+  color: var(--secondary-color);
+  border:1px solid var(--secondary-color);
 }
+.last-badge { background: var(--primary-light); color: var(--primary-color); border-color: var(--primary-color); }
 
-.price {
-  font-weight: 700;
-  color: #111827;
-  font-size:0.85rem;
-}
+.card-body .meta + .meta { margin-top:.35rem; }
 
 .card-footer {
   display:flex;
@@ -172,11 +177,38 @@
 
 .out-of-stock { font-size:0.65rem; font-weight:600; color:#dc2626; }
 
+.field-help {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #374151;
+  line-height: 1.3;
+}
+
+/* pequena linha decorativa à esquerda */
+.card::before {
+  content:'';
+  position:absolute;
+  left:1px; top:1px; bottom:1px; /* recuo para ficar dentro da borda de 1px */
+  width:8px; /* aumentado de 4px para dar mais destaque */
+  background: linear-gradient(180deg,var(--primary-color),var(--secondary-color));
+  border-radius:12px 0 0 12px; /* cantos seguem o card */
+  opacity:.15;
+  transition: opacity .18s;
+  pointer-events: none;
+}
+.card:hover::before { opacity:.35; }
+
+/* responsivo: diminuir hover em mobile */
+@media (hover:none) {
+  .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); transform:none; }
+  .card:hover::before { opacity:.2; }
+}
+
 @media (min-width: 1024px) {
   .store-container { max-width: none; width: 100%; padding: 0 !important; }
   .store-header { width: 100%; }
   .grid { width: calc(100% - 2rem) !important; margin: 0 auto !important; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
   .card { min-height:240px; }
-  .desc { -webkit-line-clamp:3; }
+  .desc { -webkit-line-clamp:3; line-clamp: 3; }
 }
