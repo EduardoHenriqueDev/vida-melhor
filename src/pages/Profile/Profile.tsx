@@ -8,7 +8,7 @@ import './Profile.css'
 
 interface ProfileProps {
   onSignOut: () => void
-  onNavigate: (page: 'home' | 'profile' | 'pharmacies' | 'store' | 'cuidador') => void
+  onNavigate: (page: 'home' | 'profile' | 'pharmacies' | 'store' | 'cuidador' | 'consultas' | 'medications') => void
 }
 
 const Profile = ({ onSignOut, onNavigate }: ProfileProps) => {
