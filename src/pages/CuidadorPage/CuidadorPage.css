@@ -97,6 +97,12 @@
   color: #111827;
 }
 
+.add-elder-btn.unlink {
+  background: #dc2626;
+}
+.add-elder-btn.unlink:hover { background: #b91c1c; }
+.add-elder-btn.unlink:active { background: #b91c1c; }
+
 @media (min-width: 1024px) {
   .cuidador-container { max-width: none; width: 100%; padding: 0 !important; }
   .cuidador-header { width: 100%; }

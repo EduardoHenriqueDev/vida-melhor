@@ -15,7 +15,7 @@ import { getPharmacies } from '../../services/pharmaciesService'
 interface HomeProps {
   onSignOut: () => void
   onNavigate: (
-    page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store'
+    page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'consultas'
   ) => void
 }
 

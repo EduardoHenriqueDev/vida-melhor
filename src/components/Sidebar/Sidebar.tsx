@@ -8,8 +8,8 @@ interface SidebarProps {
   displayName: string
   onClose: () => void
   onSignOut: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'store' | 'cuidador') => void
-  activePage?: 'home' | 'profile' | 'pharmacies' | 'store' | 'cuidador'
+  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'store' | 'cuidador' | 'consultas') => void
+  activePage?: 'home' | 'profile' | 'pharmacies' | 'store' | 'cuidador' | 'consultas'
 }
 
 const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage }: SidebarProps) => {
