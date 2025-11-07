@@ -7,7 +7,7 @@ import { FaPlus, FaMinus } from 'react-icons/fa'
 
 interface CuidadorPageProps {
   onSignOut: () => void
-  onNavigate: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'consultas') => void
+  onNavigate: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'consultas' | 'medications') => void
   onBack?: () => void
 }
 
@@ -43,14 +43,6 @@ const CuidadorPage = ({ onSignOut, onNavigate, onBack }: CuidadorPageProps) => {
   }
 
   // Guarda a página anterior para facilitar navegação
-  useEffect(() => {
-    try {
-      const prev = localStorage.getItem('last_page')
-      if (prev) localStorage.setItem('prev_page', prev)
-      localStorage.setItem('last_page', 'cuidador')
-    } catch {}
-  }, [])
-
   useEffect(() => {
     const load = async () => {
       setLoading(true)
@@ -118,14 +110,7 @@ const CuidadorPage = ({ onSignOut, onNavigate, onBack }: CuidadorPageProps) => {
 
   const handleBack = () => {
     if (onBack) return onBack()
-    try {
-      const prev = localStorage.getItem('prev_page') as any
-      const allowed = ['home', 'profile', 'cuidador', 'pharmacies', 'store', 'consultas']
-      const target = allowed.includes(prev) && prev !== 'cuidador' ? prev : 'home'
-      onNavigate(target as any)
-    } catch {
-      onNavigate('home')
-    }
+    onNavigate('home')
   }
 
   const handleLink = async (elderId: string) => {

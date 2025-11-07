@@ -8,7 +8,7 @@ import Modal, { ModalFooter, ModalAction } from '../../components/Modal/Modal'
 
 interface ConsultasProps {
   onBack?: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'consultas') => void
+  onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications' | 'consultas' | 'store') => void
 }
 interface ConsultationRow { id: string; user_id: string; name: string; date: string; type: string; created_at: string; doctor_name?: string | null; specialty?: string | null }
 interface ElderProfile { id: string; name: string }
@@ -84,10 +84,12 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
       }
     }
     loadUser()
-    try { localStorage.setItem('last_page', 'consultas') } catch {}
+    // registra página anterior e atual
   }, [])
 
-  const handleBack = () => { if (onBack) onBack(); else onNavigate?.('home') }
+  const handleBack = () => {
+    onBack ? onBack() : onNavigate?.('home')
+  }
 
   const handleSave = async () => {
     setFormError(null)

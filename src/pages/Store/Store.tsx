@@ -12,10 +12,10 @@ import { FaCartPlus } from 'react-icons/fa'
 
 interface storeProps {
   onBack?: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store') => void
+  onNavigate?: (page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'medications' | 'consultas' | 'store') => void
 }
 
-const store = ({ onBack, onNavigate }: storeProps) => {
+const store = ({ onNavigate }: storeProps) => {
   const [items, setItems] = useState<Medication[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -47,8 +47,10 @@ const store = ({ onBack, onNavigate }: storeProps) => {
     load()
   }, [])
 
+  useEffect(() => { /* removido tracking prev/last_page para usar histórico central */ }, [])
+
   const handleSignOut = async () => { await signOut() }
-  const handleBack = () => { if (onBack) onBack(); else window.history.back() }
+  const handleBack = () => { onNavigate?.('home') }
   const formatPrice = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
   if (loading) return (
@@ -76,7 +78,7 @@ const store = ({ onBack, onNavigate }: storeProps) => {
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
-        <h2 className="title">Medicamentos</h2>
+        <h2 className="title">Loja</h2>
         <div className="cart-wrap">
           <CartIcon count={count} />
         </div>

@@ -9,14 +9,31 @@ import { FaClinicMedical, FaCalendarAlt, FaPills, FaUser } from 'react-icons/fa'
 import CartIcon from '../../components/CartIcon/CartIcon'
 import { MdEmergency } from 'react-icons/md'
 import { useCart } from '../../contexts/CartContext'
-import { getstore, type Medication } from '../../services/storeService'
-import { getPharmacies } from '../../services/pharmaciesService'
+
+type HomeMedicineRow = {
+  id: number
+  nome: string
+  dose: string
+  estoque: number
+  ultima_dose: string | null
+  frequencia_horas?: number | null
+}
 
 interface HomeProps {
   onSignOut: () => void
   onNavigate: (
-    page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'consultas'
+    page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'consultas' | 'medications'
   ) => void
+}
+
+// Tipo para consultas conforme tabela public.consultation
+interface ConsultationRow {
+  id: string
+  name: string
+  date: string
+  type: string
+  doctor_name: string
+  specialty: string
 }
 
 const Home = ({ onSignOut, onNavigate }: HomeProps) => {
@@ -24,16 +41,17 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
   const [open, setOpen] = useState(false)
   const [isCarer, setisCarer] = useState(false)
   const { count } = useCart()
-  const [meds, setMeds] = useState<Medication[]>([])
+  const [userId, setUserId] = useState<string>('')
+  const [meds, setMeds] = useState<HomeMedicineRow[]>([])
   const [medsLoading, setMedsLoading] = useState(true)
   const [medsError, setMedsError] = useState<string | null>(null)
   const [isDesktop, setIsDesktop] = useState<boolean>(typeof window !== 'undefined' ? window.innerWidth >= 1024 : false)
-  const [pharmacies, setPharmacies] = useState<any[]>([])
-  const [pharmLoading, setPharmLoading] = useState(true)
-  const [pharmError, setPharmError] = useState<string | null>(null)
+  const [consultations, setConsultations] = useState<ConsultationRow[]>([])
+  const [consultLoading, setConsultLoading] = useState(true)
+  const [consultError, setConsultError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [searching, setSearching] = useState(false)
-  const [medsFound, setMedsFound] = useState<Medication[]>([])
+  const [medsFound, setMedsFound] = useState<any[]>([])
   const [pharmsFound, setPharmsFound] = useState<any[]>([])
   const [searchError, setSearchError] = useState<string | null>(null)
 
@@ -53,6 +71,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       const metaName = (user?.user_metadata as any)?.name as string | undefined
       setDisplayName(profileName || metaName || user?.email || 'Usuário')
       setisCarer(!!(user?.user_metadata as any)?.role)
+      setUserId(user?.id || '')
     }
     loadUser()
   }, [])
@@ -72,13 +91,20 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
     ensureSession()
   }, [onSignOut])
 
+  // Carrega medicamentos do usuário logado
   useEffect(() => {
+    if (!userId) return
     const loadMeds = async () => {
       setMedsLoading(true)
       setMedsError(null)
       try {
-        const all = await getstore()
-        setMeds(all.slice(0, 4))
+        const { data, error } = await supabase
+          .from('medicines')
+          .select('id,nome,dose,estoque,ultima_dose,frequencia_horas')
+          .eq('user_id', userId)
+          .order('id', { ascending: false })
+        if (error) throw error
+        setMeds((data as HomeMedicineRow[]) || [])
       } catch (e: any) {
         setMedsError(e?.message ?? 'Erro ao carregar medicamentos')
       } finally {
@@ -86,23 +112,26 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       }
     }
     loadMeds()
-  }, [])
+  }, [userId])
 
   useEffect(() => {
-    const loadPharmacies = async () => {
-      setPharmLoading(true)
-      setPharmError(null)
+    if (!userId) return
+    const loadConsults = async () => {
+      setConsultLoading(true); setConsultError(null)
       try {
-        const all = await getPharmacies()
-        setPharmacies(all)
+        const { data, error } = await supabase
+          .from('consultation')
+          .select('id,name,date,type,doctor_name,specialty')
+          .eq('user_id', userId)
+          .order('date', { ascending: false })
+        if (error) throw error
+        setConsultations((data as ConsultationRow[]) || [])
       } catch (e: any) {
-        setPharmError(e?.message ?? 'Erro ao carregar farmácias')
-      } finally {
-        setPharmLoading(false)
-      }
+        setConsultError(e?.message || 'Erro ao carregar consultas')
+      } finally { setConsultLoading(false) }
     }
-    loadPharmacies()
-  }, [])
+    loadConsults()
+  }, [userId])
 
   useEffect(() => {
     const onResize = () => setIsDesktop(window.innerWidth >= 1024)
@@ -130,7 +159,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
         if (!active) return
         if (medsResp.error) throw medsResp.error
         if (pharmsResp.error) throw pharmsResp.error
-        setMedsFound((medsResp.data as Medication[]) || [])
+        setMedsFound((medsResp.data as any[]) || [])
         setPharmsFound(pharmsResp.data || [])
       } catch (e: any) {
         if (active) setSearchError(e?.message || 'Erro na busca')
@@ -140,9 +169,6 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
     }, 300)
     return () => { active = false; clearTimeout(handler) }
   }, [searchTerm])
-
-  const formatPrice = (cents: number) =>
-    (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
   const handleSignOut = async () => {
     await signOut()
@@ -156,15 +182,8 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
   }, [])
 
   useEffect(() => {
-    try {
-      const last = localStorage.getItem('last_page')
-      if (last && last !== 'home') {
-        onNavigate(last as any)
-        return
-      }
-    } catch {}
-    try { localStorage.setItem('last_page', 'home') } catch {}
-  }, [onNavigate])
+    try { localStorage.setItem('last_page','home') } catch {}
+  }, [])
 
   return (
     <div className="home-container">
@@ -245,7 +264,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
           <button
             type="button"
             className="see-all"
-            onClick={() => onNavigate('store')}
+            onClick={() => onNavigate('medications')}
           >
             Ver tudo
           </button>
@@ -256,65 +275,63 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
               <div key={i} className="med-card skeleton" />
             ))}
           {!medsLoading && medsError && <div className="med-error">{medsError}</div>}
-          {!medsLoading &&
-            !medsError &&
-            meds.slice(0, isDesktop ? 6 : 4).map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                className="med-card mini"
-                role="listitem"
-                aria-label={`Ver ${m.name}`}
-                onClick={() => onNavigate('store')}
-              >
-                <div className="med-mini-header">
-                  <span className="med-name" title={m.name}>
-                    {m.name}
-                  </span>
-                  <span className={`badge ${m.is_generic ? 'generic' : 'brand'}`}>
-                    {m.is_generic ? 'Genérico' : 'Marca'}
-                  </span>
-                </div>
-                {m.description && (
-                  <span className="med-desc" title={m.description}>
-                    {m.description}
-                  </span>
+          {!medsLoading && !medsError && meds.slice(0, isDesktop ? 6 : 4).map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              className="med-card mini"
+              role="listitem"
+              aria-label={`Ver ${m.nome}`}
+              onClick={() => onNavigate('medications')}
+            >
+              <div className="med-mini-header">
+                <span className="med-name" title={m.nome}>
+                  {m.nome}
+                </span>
+              </div>
+              <span className="med-desc" title={`Dose: ${m.dose}`}>
+                Dose: {m.dose}
+              </span>
+              <div className="med-meta-line">
+                <span className="med-stock">Estoque: {m.estoque}</span>
+                {typeof m.frequencia_horas === 'number' && m.frequencia_horas > 0 && (
+                  <span className="med-price">{m.frequencia_horas}h</span>
                 )}
-                <div className="med-meta-line">
-                  <span className="med-stock">Estoque: {m.stock}</span>
-                  <span className="med-price">{formatPrice(m.price_in_cents)}</span>
-                </div>
-              </button>
-            ))}
+              </div>
+            </button>
+          ))}
         </div>
       </div>
 
       {isDesktop && (
-        <div className="home-pharmacies">
-          <div className="pharm-header">
-            <h3 className="pharm-title">Farmácias</h3>
-            <button type="button" className="see-all" onClick={() => onNavigate('pharmacies')}>
-              Ver tudo
-            </button>
+        <div className="home-consultations">
+          <div className="consult-header">
+            <h3 className="consult-title">Consultas</h3>
+            <button type="button" className="see-all" onClick={() => onNavigate('consultas')}>Ver tudo</button>
           </div>
-          <div className="pharm-row" role="list" aria-label="Lista de farmácias">
-            {pharmLoading && Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="pharm-card skeleton" />
+          <div className="consult-row" role="list" aria-label="Lista de consultas">
+            {consultLoading && Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="consult-card skeleton" />
             ))}
-            {!pharmLoading && pharmError && <div className="pharm-error">{pharmError}</div>}
-            {!pharmLoading && !pharmError && pharmacies.slice(0, 6).map(p => (
+            {!consultLoading && consultError && <div className="consult-error" role="alert">{consultError}</div>}
+            {!consultLoading && !consultError && consultations.slice(0,6).map(c => (
               <button
-                key={p.id}
+                key={c.id}
                 type="button"
-                className="pharm-card"
+                className="consult-card"
                 role="listitem"
-                aria-label={`Ver farmácia ${p.name}`}
-                onClick={() => onNavigate('pharmacies')}
+                aria-label={`Ver consulta ${c.name}`}
+                onClick={() => onNavigate('consultas')}
               >
-                <span className="pharm-name" title={p.name}>{p.name}</span>
-                {p.email && <span className="pharm-email" title={p.email}>{p.email}</span>}
-                {p.address && <span className="pharm-address" title={p.address}>{p.address}</span>}
-                {p.contact && <span className="pharm-contact" title={p.contact}>{p.contact}</span>}
+                <span className="consult-name" title={c.name}>{c.name}</span>
+                <div className="consult-meta-line">
+                  <span className="consult-date" title={c.date}>{new Date(c.date).toLocaleString('pt-BR')}</span>
+                  <span className="consult-type" title={c.type}>{c.type}</span>
+                </div>
+                <div className="consult-meta-line">
+                  <span className="consult-doc" title={`Médico: ${c.doctor_name}`}>{c.doctor_name}</span>
+                  <span className="consult-spec" title={`Especialidade: ${c.specialty}`}>{c.specialty}</span>
+                </div>
               </button>
             ))}
           </div>
@@ -332,7 +349,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
           <button
             type="button"
             className="home-action-button primary"
-            aria-label="Farmácias"
+            aria-label="Consultas"
             onClick={() => onNavigate('pharmacies')}
           >
             <FaClinicMedical className="icon" />
@@ -346,7 +363,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
             type="button"
             className="home-action-button"
             aria-label="Medicamentos"
-            onClick={() => onNavigate('store')}
+            onClick={() => onNavigate('medications')}
           >
             <FaPills className="icon" />
             <span>Medicamentos</span>

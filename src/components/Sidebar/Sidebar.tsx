@@ -8,8 +8,8 @@ interface SidebarProps {
   displayName: string
   onClose: () => void
   onSignOut: () => void
-  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'store' | 'cuidador' | 'consultas') => void
-  activePage?: 'home' | 'profile' | 'pharmacies' | 'store' | 'cuidador' | 'consultas'
+  onNavigate?: (page: 'home' | 'profile' | 'pharmacies' | 'store' | 'cuidador' | 'consultas' | 'medications') => void
+  activePage?: 'home' | 'profile' | 'pharmacies' | 'store' | 'cuidador' | 'consultas' | 'medications'
 }
 
 const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage }: SidebarProps) => {
@@ -70,7 +70,7 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
           <div className="sidebar-profile">
             <div className="sidebar-avatar" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/>
+                <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z" />
               </svg>
             </div>
             <div className="sidebar-identity">
@@ -84,28 +84,28 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
             <a
               href="#"
               className={`sidebar-link ${activePage === 'home' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','home')}catch{}; onNavigate?.('home'); onClose(); }}
+              onClick={(e) => { e.preventDefault(); try { localStorage.setItem('last_page', 'home') } catch { }; onNavigate?.('home'); onClose(); }}
             >
               Home
             </a>
             <a
               href="#"
               className={`sidebar-link ${activePage === 'profile' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','profile')}catch{}; onNavigate?.('profile'); onClose(); }}
+              onClick={(e) => { e.preventDefault(); try { localStorage.setItem('last_page', 'profile') } catch { }; onNavigate?.('profile'); onClose(); }}
             >
               Perfil
             </a>
             <a
               href="#"
               className={`sidebar-link ${activePage === 'store' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','store')}catch{}; onNavigate?.('store'); onClose(); }}
+              onClick={(e) => { e.preventDefault(); try { localStorage.setItem('last_page', 'store') } catch { }; onNavigate?.('store'); onClose(); }}
             >
-              Medicamentos
+              Loja
             </a>
             <a
               href="#"
               className={`sidebar-link ${activePage === 'pharmacies' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','pharmacies')}catch{}; onNavigate?.('pharmacies'); onClose(); }}
+              onClick={(e) => { e.preventDefault(); try { localStorage.setItem('last_page', 'pharmacies') } catch { }; onNavigate?.('pharmacies'); onClose(); }}
             >
               Farmácias
             </a>
@@ -115,7 +115,7 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
               <a
                 href="#"
                 className={`sidebar-link ${activePage === 'cuidador' ? 'active' : ''}`}
-                onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','cuidador')}catch{}; onNavigate?.('cuidador'); onClose(); }}
+                onClick={(e) => { e.preventDefault(); try { localStorage.setItem('last_page', 'cuidador') } catch { }; onNavigate?.('cuidador'); onClose(); }}
               >
                 Cuidador
               </a>
@@ -124,9 +124,13 @@ const Sidebar = ({ open, displayName, onClose, onSignOut, onNavigate, activePage
             <a
               href="#"
               className={`sidebar-link ${activePage === 'consultas' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); try{localStorage.setItem('last_page','consultas')}catch{}; onNavigate?.('consultas'); onClose(); }}
+              onClick={(e) => { e.preventDefault(); try { localStorage.setItem('last_page', 'consultas') } catch { }; onNavigate?.('consultas'); onClose(); }}
             >
               Consultas
+            </a>
+
+            <a href="#" className={`sidebar-link ${activePage === 'medications' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); try { localStorage.setItem('last_page', 'medications') } catch { }; onNavigate?.('medications'); onClose(); }}>
+              Medicamentos
             </a>
           </nav>
         </div>
