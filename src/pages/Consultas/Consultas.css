@@ -162,9 +162,42 @@
   font-size: 0.85rem;
 }
 
+.consultas-status { padding:0 1rem; font-size:0.85rem; color:#374151; }
+.consultas-error { padding:0 1rem; font-size:0.85rem; color:#b91c1c; }
+.consultas-empty { padding:0 1rem; font-size:0.85rem; color:#6b7280; }
+.consultation-meta { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-top:.35rem; }
+.consultation-date { font-size:.7rem; color:#6b7280; font-weight:600; }
+.consultation-badge { font-size:.65rem; padding:0.2rem 0.5rem; border-radius:999px; border:1px solid #e5e7eb; text-transform:capitalize; font-weight:600; }
+.consultation-badge.presencial { background: var(--secondary-light); color: var(--secondary-color); border-color: var(--secondary-color); }
+.consultation-badge.telemedicina { background:#eff6ff; color:#1e40af; border-color:#bfdbfe; }
+
+.modal-select {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.65rem 0.8rem;
+  font-size: 0.9rem;
+  color: #111827;
+  transition: border-color .15s ease, box-shadow .15s ease;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #6b7280 50%), linear-gradient(135deg, #6b7280 50%, transparent 50%);
+  background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 13px) calc(50% - 3px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.modal-select:hover { border-color: #d1d5db; }
+.modal-select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px var(--primary-light); }
+.modal-select:disabled { opacity: .55; cursor: not-allowed; }
+
+.consultation-extra { margin-top:0.4rem; display:flex; flex-direction:column; gap:0.25rem; }
+.consultation-doctor { font-size:0.7rem; font-weight:600; color:#111827; }
+.consultation-specialty { font-size:0.65rem; font-weight:600; color:#1e3a8a; text-transform:capitalize; }
+
 @media (min-width: 768px) {
   .modal-input { font-size: 0.95rem; padding: 0.7rem 0.85rem; }
   .radio-option { padding: 0.5rem 0.7rem; }
+  .modal-select { font-size: 0.95rem; padding: 0.7rem 0.85rem; }
 }
 
 @media (min-width: 1024px) {
