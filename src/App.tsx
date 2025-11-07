@@ -18,7 +18,6 @@ function App() {
   >('login')
 
   const [bootstrapped, setBootstrapped] = useState(false)
-  const [history, setHistory] = useState<string[]>([])
 
   useEffect(() => {
     const init = async () => {
@@ -59,16 +58,7 @@ function App() {
   const handleNavigate = (
     page: 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'consultas' | 'medications'
   ) => {
-    setHistory(h => [...h, currentPage])
     setCurrentPage(page)
-  }
-  const handleBack = () => {
-    setHistory(h => {
-      if (h.length === 0) { setCurrentPage('home'); return h }
-      const prev = h[h.length - 1]
-      setCurrentPage(prev as any)
-      return h.slice(0, -1)
-    })
   }
 
   if (!bootstrapped) {
@@ -103,28 +93,29 @@ function App() {
         <CuidadorPage
           onSignOut={handleSignOut}
           onNavigate={handleNavigate}
-          onBack={handleBack}
         />
       )}
 
       {currentPage === 'pharmacies' && (
-        <Pharmacies onBack={handleBack} onNavigate={handleNavigate} />
+        <Pharmacies onNavigate={handleNavigate} />
       )}
 
       {currentPage === 'store' && (
-        <Store onBack={handleBack} onNavigate={handleNavigate} />
+        <Store onNavigate={handleNavigate} />
       )}
 
       {currentPage === 'consultas' && (
-        <Consultas onBack={handleBack} onNavigate={handleNavigate} />
+        <Consultas onNavigate={handleNavigate} />
       )}
 
       {currentPage === 'medications' && (
-        <Medications onBack={handleBack} onNavigate={handleNavigate} />
+        <Medications onNavigate={handleNavigate} />
       )}
     </div>
   )
 }
+
+// historyRef implementado para navegação de voltar.
 
 export default App
 
