@@ -118,19 +118,42 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
     const loadConsults = async () => {
       setConsultLoading(true); setConsultError(null)
       try {
-        const { data, error } = await supabase
-          .from('consultation')
-          .select('id,name,date,type,doctor_name,specialty')
-          .eq('user_id', userId)
-          .order('date', { ascending: false })
-        if (error) throw error
-        setConsultations((data as ConsultationRow[]) || [])
+        let rows: ConsultationRow[] = []
+        if (isCarer) {
+          // busca ids dos idosos vinculados
+          const { data: elders, error: eldersErr } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('carer_id', userId)
+          if (eldersErr) throw eldersErr
+          const ids = (elders || []).map(e => (e as any).id)
+          if (ids.length === 0) {
+            rows = []
+          } else {
+            const { data: consults, error: consultErr } = await supabase
+              .from('consultation')
+              .select('id,name,date,type,doctor_name,specialty')
+              .in('user_id', ids)
+              .order('date', { ascending: false })
+            if (consultErr) throw consultErr
+            rows = (consults as ConsultationRow[]) || []
+          }
+        } else {
+          const { data, error } = await supabase
+            .from('consultation')
+            .select('id,name,date,type,doctor_name,specialty')
+            .eq('user_id', userId)
+            .order('date', { ascending: false })
+          if (error) throw error
+          rows = (data as ConsultationRow[]) || []
+        }
+        setConsultations(rows)
       } catch (e: any) {
         setConsultError(e?.message || 'Erro ao carregar consultas')
       } finally { setConsultLoading(false) }
     }
     loadConsults()
-  }, [userId])
+  }, [userId, isCarer])
 
   useEffect(() => {
     const onResize = () => setIsDesktop(window.innerWidth >= 1024)

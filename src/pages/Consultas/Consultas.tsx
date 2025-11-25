@@ -18,7 +18,7 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
   const [open, setOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [formName, setFormName] = useState('')
-  const [formDate, setFormDate] = useState('')
+  const [formDateTime, setFormDateTime] = useState('')
   const [formMode, setFormMode] = useState<'presencial' | 'telemedicina' | ''>('')
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
@@ -49,6 +49,25 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
     }
   }
 
+  const loadConsultationsForIds = async (uids: string[]) => {
+    setLoading(true)
+    setLoadError(null)
+    try {
+      if (!uids || uids.length === 0) { setConsultations([]); return }
+      const { data, error } = await supabase
+        .from('consultation')
+        .select('id,user_id,name,date,type,created_at,doctor_name,specialty')
+        .in('user_id', uids)
+        .order('date', { ascending: false })
+      if (error) throw error
+      setConsultations((data || []) as ConsultationRow[])
+    } catch (e: any) {
+      setLoadError(e?.message || 'Erro ao carregar consultas')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     const loadUser = async () => {
       const { data } = await supabase.auth.getUser()
@@ -69,17 +88,27 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
       setisCarer(!!roleFlag)
 
       if (user?.id) {
-        loadConsultations(user.id)
         if (roleFlag) {
-          // carrega idosos vinculados (carer_id = cuidador)
           try {
-            const { data, error } = await supabase
+            const { data: elders, error } = await supabase
               .from('profiles')
               .select('id,name')
               .eq('carer_id', user.id)
               .order('name', { ascending: true })
-            if (!error && data) setLinkedElders(data as ElderProfile[])
-          } catch {}
+            if (!error && elders) {
+              setLinkedElders(elders as ElderProfile[])
+              const ids = (elders as ElderProfile[]).map(e => e.id)
+              await loadConsultationsForIds(ids)
+            } else {
+              setLinkedElders([])
+              setConsultations([])
+            }
+          } catch {
+            setLinkedElders([])
+            setConsultations([])
+          }
+        } else {
+          loadConsultations(user.id)
         }
       }
     }
@@ -95,11 +124,11 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
     setFormError(null)
     // validação diferenciada para cuidador
     if (isCarer) {
-      if (!selectedElderId || !formDate || !formMode) {
-        setFormError('Selecione o idoso, a data e o tipo.')
+      if (!selectedElderId || !formDateTime || !formMode) {
+        setFormError('Selecione o idoso, a data/hora e o tipo.')
         return
       }
-    } else if (!formName.trim() || !formDate || !formMode) {
+    } else if (!formName.trim() || !formDateTime || !formMode) {
       setFormError('Preencha todos os campos.')
       return
     }
@@ -112,10 +141,12 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
       const targetUserId = isCarer && selectedElderId ? selectedElderId : user.id
       const targetName = isCarer && selectedElderId ? (linkedElders.find(e => e.id === selectedElderId)?.name || 'Idoso') : formName.trim()
 
+      const isoDateTime = formDateTime.length === 16 ? `${formDateTime}:00` : formDateTime
+
       const payload: any = {
         user_id: targetUserId,
         name: targetName,
-        date: formDate,
+        date: isoDateTime,
         type: formMode,
         doctor_name: (doctorName || '').trim() || null,
         specialty: (specialty || '') || null,
@@ -125,12 +156,18 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
 
       setModalOpen(false)
       setFormName('')
-      setFormDate('')
+      setFormDateTime('')
       setFormMode('')
       setSelectedElderId('')
       setDoctorName('')
       setSpecialty('')
-      loadConsultations(targetUserId)
+
+      if (isCarer) {
+        const ids = linkedElders.map(e => e.id)
+        await loadConsultationsForIds(ids)
+      } else {
+        await loadConsultations(user.id)
+      }
     } catch (e: any) {
       setFormError(e?.message || 'Falha ao salvar consulta')
     } finally {
@@ -140,10 +177,12 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
 
   const formatDate = (iso: string) => {
     if (!iso) return '—'
-    const datePart = (iso || '').split('T')[0] || iso
+    const [datePart, timePartRaw] = (iso || '').split('T')
     const [y, m, d] = (datePart || '').split('-')
     if (!y || !m || !d) return '—'
-    return `${d.padStart(2,'0')}/${m.padStart(2,'0')}/${y}`
+    const timePart = (timePartRaw || '').slice(0,5)
+    const base = `${d.padStart(2,'0')}/${m.padStart(2,'0')}/${y}`
+    return timePart ? `${base} ${timePart}` : base
   }
   const formatSpecialty = (value?: string | null) => {
     if (!value) return '—'
@@ -232,13 +271,13 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
           </div>
 
           <div className="modal-field">
-            <label htmlFor="diaConsulta" className="modal-label">Dia da consulta</label>
+            <label htmlFor="dataHoraConsulta" className="modal-label">Data e hora da consulta</label>
             <input
-              id="diaConsulta"
+              id="dataHoraConsulta"
               className="modal-input"
-              type="date"
-              value={formDate}
-              onChange={(e) => setFormDate(e.target.value)}
+              type="datetime-local"
+              value={formDateTime}
+              onChange={(e) => setFormDateTime(e.target.value)}
             />
           </div>
 
@@ -256,27 +295,14 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
 
           <div className="modal-field">
             <label htmlFor="especialidade" className="modal-label">Especialidade</label>
-            <select
+            <input
               id="especialidade"
-              className="modal-select"
+              className="modal-input"
+              type="text"
+              placeholder="Ex.: Urologista, Ginecologista, Clínico geral"
               value={specialty}
               onChange={(e) => setSpecialty(e.target.value)}
-            >
-              <option value="">Selecione</option>
-              <option value="clinico_geral">Clínico geral</option>
-              <option value="cardiologista">Cardiologista</option>
-              <option value="dermatologista">Dermatologista</option>
-              <option value="endocrinologista">Endocrinologista</option>
-              <option value="ginecologista">Ginecologista</option>
-              <option value="geriatria">Geriatra</option>
-              <option value="neurologista">Neurologista</option>
-              <option value="oftalmologista">Oftalmologista</option>
-              <option value="otorrinolaringologista">Otorrinolaringologista</option>
-              <option value="ortopedista">Ortopedista</option>
-              <option value="pediatra">Pediatra</option>
-              <option value="psiquiatra">Psiquiatra</option>
-              <option value="urologista">Urologista</option>
-            </select>
+            />
           </div>
 
           <div className="modal-field">
@@ -308,7 +334,7 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
         </div>
         <ModalFooter>
           <ModalAction $variant="secondary" onClick={() => setModalOpen(false)} disabled={saving}>Cancelar</ModalAction>
-          <ModalAction onClick={handleSave} disabled={saving || (!isCarer && !formName.trim()) || (isCarer && !selectedElderId) || !formDate || !formMode}>
+          <ModalAction onClick={handleSave} disabled={saving || (!isCarer && !formName.trim()) || (isCarer && !selectedElderId) || !formDateTime || !formMode}>
             {saving ? 'Salvando...' : 'Salvar'}
           </ModalAction>
         </ModalFooter>
