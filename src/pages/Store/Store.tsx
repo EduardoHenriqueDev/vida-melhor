@@ -9,6 +9,7 @@ import Loading from '../../components/Loading/Loading'
 import CartIcon from '../../components/CartIcon/CartIcon'
 import { useCart } from '../../contexts/CartContext'
 import { FaCartPlus } from 'react-icons/fa'
+import FancyCard from '../../components/FancyCard/FancyCard'
 
 interface storeProps {
   onBack?: () => void
@@ -86,12 +87,11 @@ const store = ({ onNavigate }: storeProps) => {
 
       <div className="grid">
         {items.map((m) => (
-          <div key={m.id} className="card">
-            <div className="card-header">
-              <h3 className="name">{m.name}</h3>
-              <span className={`badge ${m.is_generic ? 'generic' : 'brand'}`}>{m.is_generic ? 'Genérico' : 'Marca'}</span>
-            </div>
+          <FancyCard key={m.id} title={m.name} width="100%" height="auto">
             <div className="card-body">
+              <div style={{ display:'flex', justifyContent:'flex-end' }}>
+                <span className={`badge ${m.is_generic ? 'generic' : 'brand'}`}>{m.is_generic ? 'Genérico' : 'Marca'}</span>
+              </div>
               {m.description && <p className="desc" title={m.description}>{m.description}</p>}
               <div className="inline-meta">
                 {m.stock > 0 ? (
@@ -101,20 +101,20 @@ const store = ({ onNavigate }: storeProps) => {
                 )}
                 <span className="price">{formatPrice(m.price_in_cents)}</span>
               </div>
+              <div className="card-footer">
+                <small className="slug">Slug: {m.slug}</small>
+                <button
+                  type="button"
+                  className={`add-btn ${m.stock === 0 ? 'disabled' : ''}`}
+                  aria-label={m.stock === 0 ? `${m.name} fora de estoque` : `Adicionar ${m.name} ao carrinho`}
+                  disabled={m.stock === 0}
+                  onClick={() => m.stock > 0 && addItem({ id: m.id, name: m.name, price_in_cents: m.price_in_cents })}
+                >
+                  <FaCartPlus />
+                </button>
+              </div>
             </div>
-            <div className="card-footer">
-              <small className="slug">Slug: {m.slug}</small>
-              <button
-                type="button"
-                className={`add-btn ${m.stock === 0 ? 'disabled' : ''}`}
-                aria-label={m.stock === 0 ? `${m.name} fora de estoque` : `Adicionar ${m.name} ao carrinho`}
-                disabled={m.stock === 0}
-                onClick={() => m.stock > 0 && addItem({ id: m.id, name: m.name, price_in_cents: m.price_in_cents })}
-              >
-                <FaCartPlus />
-              </button>
-            </div>
-          </div>
+          </FancyCard>
         ))}
       </div>
     </div>

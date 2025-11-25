@@ -26,7 +26,6 @@ interface HomeProps {
   ) => void
 }
 
-// Tipo para consultas conforme tabela public.consultation
 interface ConsultationRow {
   id: string
   name: string
@@ -285,18 +284,14 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
               onClick={() => onNavigate('medications')}
             >
               <div className="med-mini-header">
-                <span className="med-name" title={m.nome}>
-                  {m.nome}
-                </span>
+                <span className="med-name" title={m.nome}>{m.nome}</span>
+                {typeof m.frequencia_horas === 'number' && m.frequencia_horas > 0 && (
+                  <span className="med-freq" title={`Frequência: ${m.frequencia_horas} horas`}>{m.frequencia_horas}h</span>
+                )}
               </div>
-              <span className="med-desc" title={`Dose: ${m.dose}`}>
-                Dose: {m.dose}
-              </span>
+              <span className="med-desc" title={`Dose: ${m.dose}`}>Dose: {m.dose}</span>
               <div className="med-meta-line">
                 <span className="med-stock">Estoque: {m.estoque}</span>
-                {typeof m.frequencia_horas === 'number' && m.frequencia_horas > 0 && (
-                  <span className="med-price">{m.frequencia_horas}h</span>
-                )}
               </div>
             </button>
           ))}
@@ -323,15 +318,14 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
                 aria-label={`Ver consulta ${c.name}`}
                 onClick={() => onNavigate('consultas')}
               >
-                <span className="consult-name" title={c.name}>{c.name}</span>
-                <div className="consult-meta-line">
-                  <span className="consult-date" title={c.date}>{new Date(c.date).toLocaleString('pt-BR')}</span>
+                <div className="consult-mini-header">
+                  <span className="consult-name" title={c.specialty || c.name}>{c.specialty || c.name}</span>
                   <span className="consult-type" title={c.type}>{c.type}</span>
                 </div>
-                <div className="consult-meta-line">
-                  <span className="consult-doc" title={`Médico: ${c.doctor_name}`}>{c.doctor_name}</span>
-                  <span className="consult-spec" title={`Especialidade: ${c.specialty}`}>{c.specialty}</span>
-                </div>
+                {c.doctor_name && (
+                  <span className="consult-doc" title={`Médico: ${c.doctor_name}`}>Dr(a). {c.doctor_name}</span>
+                )}
+                <span className="consult-date" title={c.date}>{new Date(c.date).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
               </button>
             ))}
           </div>
