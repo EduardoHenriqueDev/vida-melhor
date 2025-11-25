@@ -443,148 +443,144 @@
   cursor: pointer;
 }
 
+/* Grid quadrado para Medicamentos */
 .meds-row {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(160px, 1fr);
+  grid-auto-flow: row;
+  grid-auto-columns: initial;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 150px));
   gap: 0.75rem;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
-  -webkit-overflow-scrolling: touch;
+  overflow: visible;
+  padding-bottom: 0;
+  justify-content: start;
 }
 
-.med-card {
+/* Cartões quadrados */
+.med-card.mini {
+  aspect-ratio: auto;
+  min-height: auto;
+  height: auto;
+  padding: 0.6rem 0.7rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1rem;
-  min-height: 120px;
-  cursor: pointer;
-}
-
-.med-card .icon {
-  font-size: 1.5rem;
-  color: var(--primary-color);
-}
-
-.med-card .med-name {
-  margin-top: 0.5rem;
-  color: #111827;
-  font-weight: 600;
-}
-
-.med-card.mini {
   align-items: stretch;
   justify-content: flex-start;
-  padding: 0.6rem 0.75rem;
-  min-height: auto;
-  text-align: left;
+}
+
+/* Ajustes de texto dentro do quadrado */
+.med-mini-header { margin-bottom: 0.35rem; }
+.med-desc { -webkit-line-clamp: 3; }
+.med-meta-line { margin-top: auto; }
+
+/* Skeletons quadrados nas grades */
+.meds-row .skeleton { aspect-ratio: auto; min-height: 96px; }
+
+/* sm+ */
+@media (min-width: 640px) {
+  .meds-row { grid-template-columns: repeat(auto-fill, minmax(160px, 160px)); }
+}
+
+/* lg+ */
+@media (min-width: 1024px) {
+  .meds-row { grid-template-columns: repeat(auto-fill, minmax(180px, 180px)); }
+}
+
+/* Visual aprimorado para cartões de Medicamentos */
+.med-card.mini {
+  background: linear-gradient(#ffffff,#ffffff) padding-box,
+              linear-gradient(135deg,var(--primary-light),var(--secondary-light)) border-box;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 10px rgba(0,0,0,.04);
   position: relative;
-  transition: box-shadow 0.15s ease-in-out, transform 0.1s ease-in-out;
+  isolation: isolate;
+  transition: box-shadow .18s ease, transform .14s ease, background .25s ease;
+  border-radius: 14px;
 }
-
-.med-card.mini:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+.med-card.mini::before {
+  content:'';
+  position:absolute; inset:0;
+  background: radial-gradient(circle at 70% 20%, rgba(0,0,0,.05), transparent 70%);
+  opacity:.4; pointer-events:none; mix-blend-mode: multiply; border-radius: inherit;
 }
+.med-card.mini:hover { box-shadow: 0 10px 24px rgba(0,0,0,.10); transform: translateY(-4px); }
+.med-card.mini:active { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.12); }
+.med-card.mini:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--primary-light), 0 8px 20px rgba(0,0,0,.12); }
+.med-name { font-weight: 700; letter-spacing:.3px; }
+.med-desc { font-size: 0.6rem !important; -webkit-line-clamp: 3; line-clamp: 3; }
+.med-meta-line { font-size: 0.58rem !important; }
+.med-stock { font-weight: 600; }
 
-.med-mini-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  width: 100%;
-  margin-bottom: 0.25rem;
-}
+/* Badges internas padronizadas (reutiliza existente) */
+.badge { backdrop-filter: blur(2px); }
 
-.med-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  flex: 1;
-  color: #111827;
-  line-height: 1.2;
-}
-
-.badge {
-  font-size: 0.55rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: 999px;
-  border: 1px solid #e5e7eb;
-  background: #f3f4f6;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.badge.generic {
-  background: var(--secondary-light);
-  color: var(--secondary-color);
-  border-color: var(--secondary-color);
-}
-
-.badge.brand {
-  background: #eff6ff;
-  color: #1e40af;
-  border-color: #bfdbfe;
-}
-
-.med-desc {
-  margin-top: 0.3rem;
-  font-size: 0.65rem;
-  color: #4b5563;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-height: 1.3em;
-}
-
-.med-meta-line {
-  margin-top: 0.35rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  font-size: 0.65rem;
-  font-weight: 600;
-}
-
-.med-stock {
-  color: #6b7280;
-}
-
-.med-price {
-  color: #111827;
-}
-
-.skeleton {
-  background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 40%, #f3f4f6 80%);
-  background-size: 200% 100%;
-  animation: shimmer 1.1s infinite;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  min-height: 110px;
-}
-
-/* Ajustar skeleton para reutilização em consultas */
-.consult-card.skeleton { animation: shimmer 1.1s infinite; }
-
-@keyframes shimmer {
-  to {
-    background-position: -200% 0;
+/* Grid quadrado para Consultas (desktop) */
+@media (min-width: 1024px) {
+  .home-consultations .consult-row {
+    display: grid;
+    grid-auto-flow: row;
+    grid-auto-columns: initial;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 180px));
+    gap: 1rem;
+    overflow: visible;
+    padding-bottom: 0;
+    justify-content: start;
   }
+  .consult-card { aspect-ratio: auto; padding: 0.7rem 0.85rem; border-radius: 12px; }
+  .home-consultations .skeleton { aspect-ratio: auto; min-height: 96px; }
+  .consult-meta-line:last-child { margin-top: auto; }
 }
 
-.med-error {
-  font-size: 0.75rem;
-  color: #b91c1c;
-  display: flex;
-  align-items: center;
+/* Ajuste: consultas ocupam só o necessário */
+.home-consultations { height:auto !important; }
+.consult-row { align-content:start; }
+.consult-card { aspect-ratio:auto !important; min-height:auto !important; }
+
+/* Visual aprimorado para cartões de Consultas */
+.consult-card {
+  background: linear-gradient(#ffffff,#ffffff) padding-box,
+              linear-gradient(135deg,var(--secondary-light),var(--primary-light)) border-box;
+  border:1px solid transparent;
+  box-shadow:0 4px 10px rgba(0,0,0,.04);
+  position:relative; isolation:isolate; border-radius:14px;
+  transition: box-shadow .18s ease, transform .14s ease, background .25s ease;
 }
+.consult-card::before { content:''; position:absolute; inset:0; background: radial-gradient(circle at 30% 75%, rgba(0,0,0,.05), transparent 70%); opacity:.45; mix-blend-mode:multiply; pointer-events:none; border-radius:inherit; }
+.consult-card:hover { box-shadow:0 10px 24px rgba(0,0,0,.10); transform:translateY(-4px); }
+.consult-card:active { transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.12); }
+.consult-card:focus-visible { outline:none; box-shadow:0 0 0 3px var(--secondary-light), 0 8px 20px rgba(0,0,0,.12); }
+.consult-name { font-weight:700; letter-spacing:.3px; }
+.consult-meta-line { font-size:.58rem !important; opacity:.9; }
+.consult-type, .consult-doc, .consult-spec {
+  display:inline-flex; align-items:center; gap:2px; font-weight:600; padding:.25rem .45rem; border-radius:999px;
+  background:#f3f4f6; border:1px solid #e5e7eb; text-transform:none; letter-spacing:.25px; line-height:1; white-space:nowrap;
+}
+.consult-type { background: var(--primary-light); color: var(--primary-color); border-color: var(--primary-color); }
+.consult-doc { display: block; padding: 0; background: transparent; border: none; border-radius: 0; font-size: 0.65rem; font-weight: 600; color: #4b5563; line-height: 1.1; }
+.consult-spec { background:#eef2ff; color:#1e3a8a; border-color:#c7d2fe; }
+
+/* Estado de foco para acessibilidade em mix de teclado */
+.med-card.mini:focus-visible, .consult-card:focus-visible { outline:none; }
+
+/* Animação sutil de aparição */
+@keyframes cardFadeUp { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+.meds-row .med-card.mini, .consult-row .consult-card { animation: cardFadeUp .35s ease both; }
+
+/* Preferência de usuário reduzindo motion */
+@media (prefers-reduced-motion: reduce) {
+  .med-card.mini, .consult-card { transition:none; }
+  .meds-row .med-card.mini, .consult-row .consult-card { animation:none; }
+}
+
+/* Minor hover for consult-card status */
+.consult-card:hover .consult-status { filter: brightness(1.05); }
+
+.consult-error { font-size:0.75rem; color:#b91c1c; display:flex; align-items:center; }
+
+/* Ajustar scroll estilizado da linha de consultas */
+.home-consultations .consult-row::-webkit-scrollbar { height:8px; }
+.home-consultations .consult-row::-webkit-scrollbar-track { background:transparent; }
+.home-consultations .consult-row::-webkit-scrollbar-thumb { background:#e5e7eb; border-radius:8px; }
+.home-consultations .consult-row::-webkit-scrollbar-thumb:hover { background:#d1d5db; }
 
 .home-role {
   width: min(100% - 4rem, 960px);
@@ -753,16 +749,22 @@
   .home-consultations { display:block; width:min(100% - 2rem,1200px); margin:0.75rem auto 0; }
   .consult-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem; }
   .consult-title { margin:0; color:#111827; }
-  .consult-row { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(200px,1fr); gap:1rem; overflow-x:auto; padding-bottom:0.5rem; -webkit-overflow-scrolling:touch; }
-  .consult-card { text-align:left; display:flex; flex-direction:column; align-items:flex-start; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:0.85rem 1rem; min-height:140px; cursor:pointer; transition:box-shadow .15s, transform .1s; }
+  .consult-row { display:grid; grid-auto-flow:row; grid-auto-columns:initial; grid-template-columns:repeat(auto-fill, minmax(200px, 200px)); gap:1rem; overflow:visible; padding-bottom:0; justify-content:start; }
+  .consult-card { text-align:left; display:flex; flex-direction:column; align-items:flex-start; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:0.85rem 1rem; min-height:140px; cursor:pointer; transition:box-shadow .15s, transform .1s; aspect-ratio: 1 / 1; }
   .consult-card:hover { box-shadow:0 4px 12px rgba(0,0,0,.08); transform:translateY(-2px); }
   .consult-name { font-size:0.8rem; font-weight:600; color:#111827; line-height:1.2; margin-bottom:0.35rem; }
-  .consult-date { font-size:0.6rem; color:#4b5563; }
+  .consult-date { display:block; margin-top:0.35rem; }
   .consult-status { margin-top:0.25rem; font-size:0.55rem; font-weight:700; padding:0.2rem 0.45rem; border-radius:999px; background:#f3f4f6; color:#374151; border:1px solid #e5e7eb; text-transform:uppercase; letter-spacing:.5px; }
   .consult-status.confirmada { background:var(--secondary-light); color:var(--secondary-color); border-color:var(--secondary-color); }
   .consult-status.cancelada { background:#fee2e2; color:#b91c1c; border-color:#fecaca; }
   .consult-status.pendente { background:#fef9c3; color:#ca8a04; border-color:#fde68a; }
+  .consult-meta-line:last-child { margin-top: auto; }
 }
+
+/* Largura automática dos consult-card para caber specialty completo */
+.consult-name { white-space: nowrap; }
+.consult-card { width: fit-content; max-width: 100%; }
+@media (min-width:1024px){ .consult-row { display:flex; flex-wrap:wrap; } }
 
 .consult-meta-line { margin-top: 0.25rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; width:100%; }
 .consult-type, .consult-doc, .consult-spec { font-size:0.6rem; color:#4b5563; font-weight:600; }
@@ -777,3 +779,48 @@
 .home-consultations .consult-row::-webkit-scrollbar-track { background:transparent; }
 .home-consultations .consult-row::-webkit-scrollbar-thumb { background:#e5e7eb; border-radius:8px; }
 .home-consultations .consult-row::-webkit-scrollbar-thumb:hover { background:#d1d5db; }
+
+/* Visual refinado para o card de medicamentos na Home */
+.med-card.mini {
+  position: relative;
+  background: linear-gradient(#ffffff,#ffffff) padding-box,
+              linear-gradient(135deg,var(--primary-light),var(--secondary-light)) border-box;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.04);
+}
+.med-card.mini::after {
+  content: '';
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(60% 60% at 120% -10%, rgba(0,0,0,.06), transparent 60%);
+}
+.med-mini-header { display:flex; align-items:center; justify-content:space-between; gap:.5rem; }
+.med-name { font-weight: 700; letter-spacing: .2px; }
+
+/* Chip de frequência */
+.med-freq { display:inline-flex; align-items:center; gap:.25rem; padding:.18rem .45rem; border-radius:999px; font-size:.6rem; font-weight:700; letter-spacing:.2px; background: var(--secondary-light); color: var(--secondary-color); border:1px solid var(--secondary-color); }
+.med-freq::before { content:'💊'; font-size:.75rem; line-height:1; }
+
+/* Ajustes de conteúdo */
+.med-desc { color:#4b5563; }
+.med-stock { color:#6b7280; }
+.med-meta-line { margin-top:auto; }
+
+/* Interação */
+.med-card.mini:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0,0,0,.10); }
+.med-card.mini:active { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.12); }
+.med-card.mini:focus-visible { outline:none; box-shadow: 0 0 0 3px var(--primary-light), 0 8px 20px rgba(0,0,0,.12); }
+
+/* Ajuste de alinhamento e fonte para dose e estoque nos cards de medicamentos */
+.med-card.mini .med-desc { text-align: left; font-size: 0.65rem !important; }
+.med-card.mini .med-meta-line { display: flex; flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+.med-card.mini .med-stock { text-align: left; font-size: 0.65rem !important; }
+
+/* Consult cards alinhados ao layout dos medicamentos */
+.consult-mini-header { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-bottom:.35rem; }
+.consult-type { display:inline-flex; align-items:center; gap:.25rem; padding:.18rem .45rem; border-radius:999px; font-size:.6rem; font-weight:700; letter-spacing:.2px; background: var(--secondary-light); color: var(--secondary-color); border:1px solid var(--secondary-color); }
+.consult-name { font-weight:700; letter-spacing:.2px; }
+.consult-desc { display:block; font-size:0.6rem; color:#4b5563; text-align:left; margin-bottom:.35rem; }
+.consult-doc { display: block; padding: 0; background: transparent; border: none; border-radius: 0; font-size: 0.65rem; font-weight: 600; color: #4b5563; line-height: 1.1; }
+.consult-date { display:block; margin-top:0.35rem; }
+.consult-meta-line { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-top:auto; }

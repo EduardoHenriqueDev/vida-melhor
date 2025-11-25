@@ -85,3 +85,26 @@
 .nav-logo.clickable {
     cursor: pointer;
 }
+
+.nav-bell-btn {
+  background:none; 
+  border:none; 
+  cursor:pointer; 
+  padding:.5rem; 
+  display:inline-flex; 
+  align-items:center; 
+  justify-content:center; 
+  font-size:1.35rem; 
+  color:#111827; 
+  border-radius:8px; 
+  position:relative;
+}
+
+.nav-bell-btn:hover { 
+  background:#f3f4f6; 
+}
+
+.nav-bell-btn:focus { 
+  outline:none; 
+  box-shadow:0 0 0 3px var(--primary-light); 
+}
