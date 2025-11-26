@@ -24,7 +24,8 @@
 .notif-drawer {
     position: absolute;
     top: 0;
-    right: -340px;
+    right: 0;
+    transform: translateX(100%);
     width: 340px;
     max-width: 100%;
     height: 100%;
@@ -32,11 +33,11 @@
     box-shadow: -4px 0 16px rgba(0, 0, 0, .12);
     display: flex;
     flex-direction: column;
-    transition: right .28s ease;
+    transition: transform .28s ease;
 }
 
 .notif-drawer-wrapper.open .notif-drawer {
-    right: 0;
+    transform: translateX(0);
 }
 
 .notif-sidebar-header {
@@ -45,7 +46,7 @@
 
 .notif-title {
     margin: 0;
-    font-size: .95rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: #111827;
 }
@@ -73,7 +74,7 @@
 
 .notif-item {
     text-align: left;
-    background: #f9fafb;
+    background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 10px;
     padding: 0.55rem 0.65rem;
@@ -94,14 +95,14 @@
 }
 
 .notif-item-title {
-    font-size: .78rem;
+    font-size: .95rem;
     font-weight: 600;
     color: #111827;
     line-height: 1.15;
 }
 
 .notif-item-meta {
-    font-size: .6rem;
+    font-size: .7rem;
     color: #6b7280;
 }
 
@@ -116,7 +117,7 @@
     display: inline-flex;
     align-items: center;
     gap: 2px;
-    font-size: .6rem;
+    font-size: .7rem;
     font-weight: 700;
     padding: .18rem .45rem;
     border-radius: 999px;
@@ -126,14 +127,14 @@
 }
 
 .notif-item-doc {
-    font-size: .6rem;
+    font-size: .7rem;
     font-weight: 600;
     color: #4b5563;
     margin-top: .25rem;
 }
 
 .notif-item-date {
-    font-size: .6rem;
+    font-size: .7rem;
     font-weight: 600;
     color: #6b7280;
     margin-top: .35rem;
@@ -141,7 +142,7 @@
 }
 
 .notif-item-remaining {
-    font-size: .62rem;
+    font-size: .8rem;
     font-weight: 600;
     color: #ff0000;
     margin-top: .15rem;
@@ -149,17 +150,17 @@
 
 .notif-item.alert-low {
     border-color: #dbeafe;
-    background: #f0f7ff;
+    background: #ffffff;
 }
 
 .notif-item.alert-med {
     border-color: #fde68a;
-    background: #fef9c3;
+    background: #ffffff;
 }
 
 .notif-item.alert-high {
     border-color: #fb7185;
-    background: #fee2e2;
+    background: #ffffff;
     animation: notifPulse 1.6s infinite;
 }
 

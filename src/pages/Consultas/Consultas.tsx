@@ -56,21 +56,21 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
       const name = (user?.user_metadata as any)?.name as string | undefined
       setDisplayName(name || user?.email || 'Usuário')
 
-      // Descobre se é cuidador pelo perfil; fallback para metadata
-      let roleFlag = !!(user?.user_metadata as any)?.role
+      // Descobre se é cuidador pelo perfil (profiles.carer); fallback para metadata
+      let carerFlag = !!(user?.user_metadata as any)?.carer || !!(user?.user_metadata as any)?.role
       if (user?.id) {
         const { data: prof, error } = await supabase
           .from('profiles')
-          .select('role')
+          .select('carer')
           .eq('id', user.id)
           .maybeSingle()
-        if (!error && prof) roleFlag = !!(prof as any).role
+        if (!error && prof) carerFlag = !!(prof as any).carer
       }
-      setisCarer(!!roleFlag)
+      setisCarer(!!carerFlag)
 
       if (user?.id) {
         loadConsultations(user.id)
-        if (roleFlag) {
+        if (carerFlag) {
           // carrega idosos vinculados (carer_id = cuidador)
           try {
             const { data, error } = await supabase
@@ -99,8 +99,8 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
         setFormError('Selecione o idoso, a data e o tipo.')
         return
       }
-    } else if (!formName.trim() || !formDate || !formMode) {
-      setFormError('Preencha todos os campos.')
+    } else if (!formDate || !formMode) {
+      setFormError('Preencha data e tipo.')
       return
     }
     try {
@@ -110,7 +110,9 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
       if (!user) throw new Error('Sessão expirada')
 
       const targetUserId = isCarer && selectedElderId ? selectedElderId : user.id
-      const targetName = isCarer && selectedElderId ? (linkedElders.find(e => e.id === selectedElderId)?.name || 'Idoso') : formName.trim()
+      const targetName = isCarer
+        ? (linkedElders.find(e => e.id === selectedElderId)?.name || 'Idoso')
+        : (displayName || user.email || 'Usuário')
 
       const payload: any = {
         user_id: targetUserId,
@@ -205,9 +207,9 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Nova consulta" width={520}>
         <div className="form">
-          <div className="modal-field">
-            <label htmlFor="nomeIdoso" className="modal-label">{isCarer ? 'Selecione o idoso' : 'Nome do cuidador'}</label>
-            {isCarer ? (
+          {isCarer && (
+            <div className="modal-field">
+              <label htmlFor="nomeIdoso" className="modal-label">Selecione o idoso</label>
               <select
                 id="nomeIdoso"
                 className="modal-select"
@@ -219,17 +221,8 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
                   <option key={el.id} value={el.id}>{el.name || 'Sem nome'}</option>
                 ))}
               </select>
-            ) : (
-              <input
-                id="nomeIdoso"
-                className="modal-input"
-                type="text"
-                placeholder={isCarer ? 'Digite o nome do idoso' : 'Digite o nome'}
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-              />
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="modal-field">
             <label htmlFor="diaConsulta" className="modal-label">Dia da consulta</label>
@@ -308,7 +301,7 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
         </div>
         <ModalFooter>
           <ModalAction $variant="secondary" onClick={() => setModalOpen(false)} disabled={saving}>Cancelar</ModalAction>
-          <ModalAction onClick={handleSave} disabled={saving || (!isCarer && !formName.trim()) || (isCarer && !selectedElderId) || !formDate || !formMode}>
+          <ModalAction onClick={handleSave} disabled={saving || (isCarer && !selectedElderId) || !formDate || !formMode}>
             {saving ? 'Salvando...' : 'Salvar'}
           </ModalAction>
         </ModalFooter>

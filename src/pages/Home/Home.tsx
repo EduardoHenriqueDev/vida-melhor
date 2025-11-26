@@ -5,10 +5,11 @@ import Navbar from '../../components/Navbar/Navbar'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import './Home.css'
 import SearchBar from '../../components/SearchBar/SearchBar'
-import { FaClinicMedical, FaCalendarAlt, FaPills, FaUser } from 'react-icons/fa'
+import { FaClinicMedical, FaCalendarAlt, FaPills, FaUser, FaPlus } from 'react-icons/fa'
 import CartIcon from '../../components/CartIcon/CartIcon'
 import { MdEmergency } from 'react-icons/md'
 import { useCart } from '../../contexts/CartContext'
+import Modal, { ModalFooter, ModalAction } from '../../components/Modal/Modal'
 
 type HomeMedicineRow = {
   id: number
@@ -53,6 +54,9 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
   const [medsFound, setMedsFound] = useState<any[]>([])
   const [pharmsFound, setPharmsFound] = useState<any[]>([])
   const [searchError, setSearchError] = useState<string | null>(null)
+  const [pendingMed, setPendingMed] = useState<HomeMedicineRow | null>(null)
+  const [doseModalOpen, setDoseModalOpen] = useState(false)
+  const [doseSaving, setDoseSaving] = useState(false)
 
   useEffect(() => {
     const loadUser = async () => {
@@ -184,6 +188,62 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
     try { localStorage.setItem('last_page','home') } catch {}
   }, [])
 
+  useEffect(() => {
+    // Abre modal para o primeiro medicamento com ultima_dose nula
+    const m = meds.find(mm => mm.ultima_dose == null)
+    if (m) { setPendingMed(m); setDoseModalOpen(true) } else { setPendingMed(null); setDoseModalOpen(false) }
+  }, [meds])
+
+  const confirmDoseTaken = async () => {
+    if (!pendingMed) return
+    try {
+      setDoseSaving(true)
+      const nowISO = new Date().toISOString()
+      const newStock = Math.max(0, (pendingMed.estoque ?? 0) - 1)
+      const { error } = await supabase
+        .from('medicines')
+        .update({ ultima_dose: nowISO, estoque: newStock })
+        .eq('id', pendingMed.id)
+      if (error) throw error
+      // recarrega medicamentos
+      try {
+        const { data } = await supabase
+          .from('medicines')
+          .select('id,nome,dose,estoque,ultima_dose,frequencia_horas')
+          .eq('user_id', userId)
+          .order('id', { ascending: false })
+        setMeds((data as HomeMedicineRow[]) || [])
+      } catch {}
+      setDoseModalOpen(false)
+      // agenda limpeza de ultima_dose após frequencia_horas
+      const freqH = pendingMed.frequencia_horas || 0
+      if (freqH && freqH > 0) {
+        setTimeout(async () => {
+          try {
+            const { error: clearErr } = await supabase
+              .from('medicines')
+              .update({ ultima_dose: null })
+              .eq('id', pendingMed.id)
+            if (!clearErr) {
+              try {
+                const { data } = await supabase
+                  .from('medicines')
+                  .select('id,nome,dose,estoque,ultima_dose,frequencia_horas')
+                  .eq('user_id', userId)
+                  .order('id', { ascending: false })
+                setMeds((data as HomeMedicineRow[]) || [])
+              } catch {}
+            }
+          } catch {}
+        }, freqH * 3600 * 1000)
+      }
+    } catch (e) {
+      console.error('Erro ao confirmar dose:', e)
+    } finally {
+      setDoseSaving(false)
+    }
+  }
+
   return (
     <div className="home-container">
       <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} onNavigate={onNavigate} />
@@ -269,6 +329,19 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
           </button>
         </div>
         <div className="meds-row" role="list">
+          {/* Card fixo de criação: mostra no início apenas quando não há itens */}
+          {(!medsLoading && !medsError && meds.length === 0) && (
+            <button
+              type="button"
+              className="create-card"
+              role="listitem"
+              aria-label="Criar medicamento"
+              onClick={() => onNavigate('medications')}
+            >
+              <FaPlus className="icon" />
+              <span>Criar</span>
+            </button>
+          )}
           {medsLoading &&
             Array.from({ length: isDesktop ? 6 : 4 }).map((_, i) => (
               <div key={i} className="med-card skeleton" />
@@ -295,6 +368,19 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
               </div>
             </button>
           ))}
+          {/* Card fixo de criação no final quando houver itens */}
+          {(!medsLoading && !medsError && meds.length > 0) && (
+            <button
+              type="button"
+              className="create-card"
+              role="listitem"
+              aria-label="Criar medicamento"
+              onClick={() => onNavigate('medications')}
+            >
+              <FaPlus className="icon" />
+              <span>Criar</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -305,6 +391,19 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
             <button type="button" className="see-all" onClick={() => onNavigate('consultas')}>Ver tudo</button>
           </div>
           <div className="consult-row" role="list" aria-label="Lista de consultas">
+            {/* Card fixo de criação: mostra no início apenas quando não há itens */}
+            {(!consultLoading && !consultError && consultations.length === 0) && (
+              <button
+                type="button"
+                className="create-card"
+                role="listitem"
+                aria-label="Criar consulta"
+                onClick={() => onNavigate('consultas')}
+              >
+                <FaPlus className="icon" />
+                <span>Criar</span>
+              </button>
+            )}
             {consultLoading && Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="consult-card skeleton" />
             ))}
@@ -328,6 +427,19 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
                 <span className="consult-date" title={c.date}>{new Date(c.date).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
               </button>
             ))}
+            {/* Card fixo de criação no final quando houver itens */}
+            {(!consultLoading && !consultError && consultations.length > 0) && (
+              <button
+                type="button"
+                className="create-card"
+                role="listitem"
+                aria-label="Criar consulta"
+                onClick={() => onNavigate('consultas')}
+              >
+                <FaPlus className="icon" />
+                <span>Criar</span>
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -386,6 +498,38 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
         onNavigate={onNavigate}
         activePage="home"
       />
+
+      {doseModalOpen && pendingMed && (
+        <Modal open={doseModalOpen} onClose={() => setDoseModalOpen(false)} title="Hora do medicamento" width={480}>
+          <div className="form">
+            <div className="modal-field">
+              <div className="modal-label">Você precisa tomar:</div>
+              <div className="modal-input" style={{ display:'block' }}>
+                <strong>{pendingMed.nome}</strong>
+              </div>
+            </div>
+            <div className="modal-field">
+              <div className="modal-label">Dose</div>
+              <div className="modal-input" style={{ display:'block' }}>
+                {pendingMed.dose}
+              </div>
+            </div>
+            {typeof pendingMed.frequencia_horas === 'number' && pendingMed.frequencia_horas > 0 && (
+              <div className="modal-field">
+                <div className="modal-label">Frequência</div>
+                <div className="modal-input" style={{ display:'block' }}>
+                  A cada {pendingMed.frequencia_horas} hora(s)
+                </div>
+              </div>
+            )}
+          </div>
+          <ModalFooter>
+            <ModalAction onClick={confirmDoseTaken} disabled={doseSaving} style={{ width: '100%' }}>
+              {doseSaving ? 'Confirmando...' : 'Tomei agora'}
+            </ModalAction>
+          </ModalFooter>
+        </Modal>
+      )}
     </div>
   )
 }

@@ -67,6 +67,11 @@ const Navbar = ({ onOpenMenu, onNavigate }: NavbarProps) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
                 <button type="button" className="nav-bell-btn" aria-label="Notificações" onClick={() => setNotificationsOpen(o=>!o)}>
                     <FiBell />
+                    {notifications.length > 0 && (
+                      <span className="nav-bell-badge" aria-label={`${notifications.length} notificação(ões)`}>
+                        {notifications.length}
+                      </span>
+                    )}
                 </button>
                 <button type="button" className="menu-button" onClick={onOpenMenu} aria-label="Abrir menu">
                     <IoMdMenu className="icon" />
