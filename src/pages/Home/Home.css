@@ -510,6 +510,23 @@
 .med-meta-line { font-size: 0.58rem !important; }
 .med-stock { font-weight: 600; }
 
+/* Ampliação de tamanho e fontes dos cards de Medicamentos e Consultas */
+.med-card.mini { padding: 1rem 1.15rem !important; }
+.med-name { font-size: 0.95rem !important; }
+.med-desc { font-size: 0.75rem !important; }
+.med-card.mini .med-stock { font-size: 0.75rem !important; }
+.med-meta-line { font-size: 0.7rem !important; }
+@media (min-width:640px){ .meds-row { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); } }
+@media (min-width:1024px){ .meds-row { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); } }
+
+.consult-card { padding: 1rem 1.15rem !important; }
+.consult-name { font-size: 0.95rem !important; }
+.consult-type { font-size: 0.7rem !important; }
+.consult-doc { font-size: 0.75rem !important; }
+.consult-date { font-size: 0.75rem !important; }
+.consult-meta-line { font-size: 0.7rem !important; }
+@media (min-width:1024px){ .home-consultations .consult-row { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); } }
+
 /* Badges internas padronizadas (reutiliza existente) */
 .badge { backdrop-filter: blur(2px); }
 
@@ -763,22 +780,10 @@
 
 /* Largura automática dos consult-card para caber specialty completo */
 .consult-name { white-space: nowrap; }
-.consult-card { width: fit-content; max-width: 100%; }
-@media (min-width:1024px){ .consult-row { display:flex; flex-wrap:wrap; } }
-
-.consult-meta-line { margin-top: 0.25rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; width:100%; }
-.consult-type, .consult-doc, .consult-spec { font-size:0.6rem; color:#4b5563; font-weight:600; }
-
-/* Minor hover for consult-card status */
-.consult-card:hover .consult-status { filter: brightness(1.05); }
-
-.consult-error { font-size:0.75rem; color:#b91c1c; display:flex; align-items:center; }
-
-/* Ajustar scroll estilizado da linha de consultas */
-.home-consultations .consult-row::-webkit-scrollbar { height:8px; }
-.home-consultations .consult-row::-webkit-scrollbar-track { background:transparent; }
-.home-consultations .consult-row::-webkit-scrollbar-thumb { background:#e5e7eb; border-radius:8px; }
-.home-consultations .consult-row::-webkit-scrollbar-thumb:hover { background:#d1d5db; }
+.consult-card { width: auto; min-width: 240px; max-width: 280px; }
+@media (min-width:1280px){ .consult-card { min-width:260px; max-width:300px; } }
+.consult-mini-header { flex-wrap:nowrap; }
+/* Remover regra anterior de width: fit-content se ainda aplicada */
 
 /* Visual refinado para o card de medicamentos na Home */
 .med-card.mini {
@@ -824,3 +829,54 @@
 .consult-doc { display: block; padding: 0; background: transparent; border: none; border-radius: 0; font-size: 0.65rem; font-weight: 600; color: #4b5563; line-height: 1.1; }
 .consult-date { display:block; margin-top:0.35rem; }
 .consult-meta-line { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-top:auto; }
+
+/* Overrides finais para consultas (desktop): garantir grid e colunas mais largas */
+@media (min-width:1024px){
+  .home-consultations .consult-row { display:flex !important; flex-wrap:wrap !important; gap:.75rem !important; justify-content:flex-start !important; }
+  .home-consultations .consult-card { width:auto !important; max-width:100% !important; min-width:0 !important; padding:.75rem .85rem !important; }
+  .home-consultations .consult-mini-header { flex-wrap:wrap !important; }
+  .home-consultations .consult-name { white-space:normal !important; }
+}
+
+.create-card {
+  text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:#fff; border:1px dashed #cbd5e1; border-radius:12px; padding:0.85rem 1rem; min-height:140px;
+  color:#111827; gap:.35rem; cursor:pointer; transition:box-shadow .15s, transform .1s, border-color .15s;
+}
+.create-card .icon { font-size:1.25rem; color: var(--primary-color); }
+.create-card:hover { border-color: var(--primary-color); box-shadow:0 4px 12px rgba(0,0,0,.08); transform:translateY(-2px); }
+.create-card span { font-size:0.85rem; font-weight:700; }
+
+/* Tamanho e estilo do card de criação igual aos cards existentes */
+.meds-row .create-card,
+.consult-row .create-card {
+  min-height: auto; /* não força altura grande */
+  padding: 0.6rem 0.7rem !important; /* compacto, igual med-card quadrado */
+  background: #fff; /* simplifica para não destacar demais */
+  border: 1px dashed #cbd5e1; /* mantém indicação de criação */
+  box-shadow: none;
+}
+
+/* Ajustes por grid de medicamentos (quadrado) */
+.meds-row .create-card { 
+  /* segue as mesmas colunas de .meds-row */
+  height: auto; 
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.35rem;
+}
+
+/* lg+ */
+@media (min-width:1024px){ .meds-row .create-card { padding: 0.85rem 1rem !important; } }
+
+/* Ajustes por grid/lista de consultas (desktop) */
+@media (min-width:1024px){
+  .consult-row .create-card { 
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.35rem;
+    padding: 0.7rem 0.85rem !important; /* igual consult-card em desktop */
+    min-height: 140px; 
+  }
+}
+
+@media (min-width:1024px){
+  .home-consultations .consult-card { min-height: auto !important; }
+  .home-consultations .consult-row .create-card { min-height: auto !important; }
+}
