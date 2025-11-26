@@ -96,23 +96,33 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
 
       setDisplayName(name || user?.email || 'Usuário')
 
-      let carerFlag =
-        !!(user?.user_metadata as any)?.carer ||
-        !!(user?.user_metadata as any)?.role
-
+      // Detecta cuidador apenas via profiles.carer
+      let carerFlag = false
       if (user?.id) {
         const { data: prof, error } = await supabase
           .from('profiles')
           .select('carer')
           .eq('id', user.id)
           .maybeSingle()
-
-        if (!error && prof) carerFlag = !!prof.carer
+        if (!error && prof) carerFlag = !!(prof as any).carer
       }
 
       setIsCarer(carerFlag)
 
       if (user?.id) {
+        // sempre carrega consultas do próprio usuário
+        let own: ConsultationRow[] = []
+        try {
+          const { data: ownData } = await supabase
+            .from('consultation')
+            .select('id,user_id,name,date,type,created_at,doctor_name,specialty')
+            .eq('user_id', user.id)
+            .order('date', { ascending: false })
+          own = (ownData || []) as ConsultationRow[]
+        } catch {}
+
+        // se cuidador, acrescenta consultas dos idosos vinculados
+        let elderRows: ConsultationRow[] = []
         if (carerFlag) {
           try {
             const { data: elders } = await supabase
@@ -120,18 +130,25 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
               .select('id,name')
               .eq('carer_id', user.id)
               .order('name', { ascending: true })
-
             setLinkedElders(elders || [])
-
             const ids = (elders || []).map(e => e.id)
-            await loadConsultationsForIds(ids)
+            if (ids.length) {
+              const { data: eldersConsults } = await supabase
+                .from('consultation')
+                .select('id,user_id,name,date,type,created_at,doctor_name,specialty')
+                .in('user_id', ids)
+                .order('date', { ascending: false })
+              elderRows = (eldersConsults || []) as ConsultationRow[]
+            }
           } catch {
             setLinkedElders([])
-            setConsultations([])
           }
-        } else {
-          loadConsultations(user.id)
         }
+
+        // une e ordena por data desc
+        const all = [...own, ...elderRows].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        setConsultations(all)
+        setLoading(false)
       }
     }
 
@@ -225,7 +242,7 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
       : v.replace(/_/g, ' ').replace(/\b(\w)/g, s => s.toUpperCase())
 
   return (
-    <div className="consultas-container">
+    <div className={"consultas-container" + (isCarer ? '' : ' not-carer')}>
       <Navbar
         onSignOut={() => {}}
         onOpenMenu={() => setOpen(true)}
@@ -274,7 +291,9 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
           {consultations.map(c => (
             <div key={c.id} className="card">
               <div className="card-body">
-                <h3 className="name">{c.name}</h3>
+                {isCarer && (
+                  <h3 className="name">{c.name}</h3>
+                )}
 
                 <div className="consultation-meta">
                   <span className="consultation-date">
@@ -334,6 +353,10 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
                 ))}
               </select>
             </div>
+          )}
+          {!isCarer && (
+            /* Campo nome oculto para contas normais, preenchido com displayName */
+            <input type="hidden" value={displayName} readOnly />
           )}
 
           <div className="modal-field">
