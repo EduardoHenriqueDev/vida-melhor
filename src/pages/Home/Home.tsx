@@ -179,7 +179,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       try {
         const term = `%${searchTerm.trim()}%`
         const [medsResp, pharmsResp] = await Promise.all([
-          supabase.from('store').select('id,name,slug,description,is_generic,stock,price_in_cents,category_id,pharmacy_id,created_at').ilike('name', term).limit(8),
+          supabase.from('medications').select('id,name,slug,description,is_generic,stock,price_in_cents,category_id,pharmacy_id,created_at').ilike('name', term).limit(8),
           supabase.from('pharmacies').select('id,name,email,address,contact,active').ilike('name', term).limit(8)
         ])
         if (!active) return

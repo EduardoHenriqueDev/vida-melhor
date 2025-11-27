@@ -6,6 +6,7 @@ import Sidebar from '../../components/Sidebar/Sidebar'
 import { supabase } from '../../lib/supabaseClient'
 import { signOut } from '../../services/authService'
 import Loading from '../../components/Loading/Loading'
+import FancyCard from '../../components/FancyCard/FancyCard'
 
 type Page = 'home' | 'profile' | 'cuidador' | 'pharmacies' | 'store' | 'medications' | 'consultas'
 
@@ -35,7 +36,7 @@ const Pharmacies = ({ onBack, onNavigate }: PharmaciesProps) => {
     const load = async () => {
       try {
         const data = await getPharmacies()
-        setItems(data)
+        setItems((data || []).filter((ph: any) => ph?.email_verified === true))
       } catch (e: any) {
         setError(e?.message ?? 'Erro ao carregar farmácias')
       } finally {
@@ -83,8 +84,8 @@ const Pharmacies = ({ onBack, onNavigate }: PharmaciesProps) => {
 
       <div className="grid">
         {items.map((ph) => (
-          <div key={ph.id} className="card">
-            <div className="card-header">
+          <FancyCard key={ph.id} title="" width="100%" height="auto">
+            <div className="pharm-top">
               <h3 className="name">{ph.name}</h3>
               <span className={`status ${ph.active ? 'active' : 'inactive'}`}>{ph.active ? 'Ativa' : 'Inativa'}</span>
             </div>
@@ -95,7 +96,7 @@ const Pharmacies = ({ onBack, onNavigate }: PharmaciesProps) => {
                 <span className={`badge ${ph.email_verified ? 'verified' : 'unverified'}`}>{ph.email_verified ? 'Verificado' : 'Não verificado'}</span>
               </p>
             </div>
-          </div>
+          </FancyCard>
         ))}
       </div>
     </div>

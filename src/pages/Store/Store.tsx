@@ -86,10 +86,11 @@ const store = ({ onNavigate }: storeProps) => {
       </div>
 
       <div className="grid">
-        {items.map((m) => (
-          <FancyCard key={m.id} title={m.name} width="100%" height="auto">
+        {items.filter(m => !!m.description && m.stock > 0).map((m) => (
+          <FancyCard key={m.id} title="" width="100%" height="auto">
             <div className="card-body">
-              <div style={{ display:'flex', justifyContent:'flex-end' }}>
+              <div className="card-header">
+                <h3 className="name">{m.name}</h3>
                 <span className={`badge ${m.is_generic ? 'generic' : 'brand'}`}>{m.is_generic ? 'Genérico' : 'Marca'}</span>
               </div>
               {m.description && <p className="desc" title={m.description}>{m.description}</p>}
@@ -102,7 +103,6 @@ const store = ({ onNavigate }: storeProps) => {
                 <span className="price">{formatPrice(m.price_in_cents)}</span>
               </div>
               <div className="card-footer">
-                <small className="slug">Slug: {m.slug}</small>
                 <button
                   type="button"
                   className={`add-btn ${m.stock === 0 ? 'disabled' : ''}`}

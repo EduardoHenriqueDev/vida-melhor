@@ -30,7 +30,7 @@ const StyledWrapper = styled.div<{
     border-radius: 1rem;
     overflow: hidden;
     font-size: 16px;
-    --gradient: ${({ $gradient }) => $gradient || 'var(--secondary-color)'}; /* barra única na secondary */
+    --gradient: ${({ $gradient }) => $gradient || 'var(--primary-color)'}; /* barra única na secondary */
     --color: ${({ $color }) => $color || 'var(--secondary-color)'}; /* título na secondary */
     cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
     transition: box-shadow 300ms ease, transform 300ms ease;
