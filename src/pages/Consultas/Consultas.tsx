@@ -94,24 +94,23 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
       const { data } = await supabase.auth.getUser()
       const user = data.user
       const name = (user?.user_metadata as any)?.name
-
       setDisplayName(name || user?.email || 'Usuário')
 
-      // Detecta cuidador apenas via profiles.carer
       let carerFlag = false
+
       if (user?.id) {
-        const { data: prof, error } = await supabase
+        const { data: prof } = await supabase
           .from('profiles')
-          .select('carer')
+          .select('role, carer_id, name')
           .eq('id', user.id)
           .maybeSingle()
-        if (!error && prof) carerFlag = !!(prof as any).carer
+
+        carerFlag = !!(prof as any)?.role
       }
 
       setIsCarer(carerFlag)
 
       if (user?.id) {
-        // sempre carrega consultas do próprio usuário
         let own: ConsultationRow[] = []
         try {
           const { data: ownData } = await supabase
@@ -122,7 +121,6 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
           own = (ownData || []) as ConsultationRow[]
         } catch {}
 
-        // se cuidador, acrescenta consultas dos idosos vinculados
         let elderRows: ConsultationRow[] = []
         if (carerFlag) {
           try {
@@ -144,15 +142,13 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
           } catch {
             setLinkedElders([])
           }
-        }
+        } 
 
-        // une e ordena por data desc
         const all = [...own, ...elderRows].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         setConsultations(all)
         setLoading(false)
       }
     }
-
     loadUser()
   }, [])
 
@@ -162,16 +158,16 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
 
   const handleSave = async () => {
     setFormError(null)
-
-    // validações
     if (isCarer) {
       if (!selectedElderId || !formDateTime || !formMode) {
         setFormError('Selecione o idoso, data/hora e tipo.')
         return
       }
-    } else if (!formDateTime || !formMode) {
-      setFormError('Preencha data e tipo.')
-      return
+    } else {
+      if (!formDateTime || !formMode) {
+        setFormError('Preencha data e tipo.')
+        return
+      }
     }
 
     try {
@@ -344,18 +340,11 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
               >
                 <option value="">Nenhum</option>
                 {linkedElders.map(el => (
-                  <option key={el.id} value={el.id}>
-                    {el.name}
-                  </option>
+                  <option key={el.id} value={el.id}>{el.name}</option>
                 ))}
               </select>
             </div>
           )}
-          {!isCarer && (
-            /* Campo nome oculto para contas normais, preenchido com displayName */
-            <input type="hidden" value={displayName} readOnly />
-          )}
-
           <div className="modal-field">
             <label className="modal-label">Data e hora</label>
             <input
