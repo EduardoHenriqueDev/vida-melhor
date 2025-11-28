@@ -84,7 +84,7 @@ const Pharmacies = ({ onBack, onNavigate }: PharmaciesProps) => {
 
       <div className="grid">
         {items.map((ph) => (
-          <FancyCard key={ph.id} title="" width="100%" height="auto">
+          <FancyCard key={ph.id} title="" width="100%" height="auto" className="card">
             <div className="pharm-top">
               <h3 className="name">{ph.name}</h3>
               <span className={`status ${ph.active ? 'active' : 'inactive'}`}>{ph.active ? 'Ativa' : 'Inativa'}</span>
@@ -92,9 +92,6 @@ const Pharmacies = ({ onBack, onNavigate }: PharmaciesProps) => {
             <div className="card-body">
               {ph.address && <p className="address" title={ph.address}>{ph.address}</p>}
               {ph.contact && <p className="contact" title={ph.contact}>{ph.contact}</p>}
-              <p className="email" title={ph.email}>{ph.email}
-                <span className={`badge ${ph.email_verified ? 'verified' : 'unverified'}`}>{ph.email_verified ? 'Verificado' : 'Não verificado'}</span>
-              </p>
             </div>
           </FancyCard>
         ))}

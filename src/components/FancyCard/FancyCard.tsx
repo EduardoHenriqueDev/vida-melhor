@@ -13,35 +13,38 @@ interface FancyCardProps {
   onClick?: () => void
   role?: string
   tabIndex?: number
+  className?: string // allow external styles (e.g., .card)
 }
 
 const StyledWrapper = styled.div<{
-  $w?: string | number; $h?: string | number; $gradient?: string; $color?: string; $clickable?: boolean;
+  $w?: string | number; $h?: string | number; $gradient?: string; $color?: string; $clickable?: boolean; $hasTitle?: boolean;
 }>`
   .notification {
     display: flex;
     flex-direction: column;
     isolation: isolate;
     position: relative;
-    width: ${({ $w }) => typeof $w === 'number' ? $w + 'px' : ($w || '18rem')};
-    height: ${({ $h }) => typeof $h === 'number' ? $h + 'px' : ($h || '8rem')};
-    background: #ffffff; /* fundo claro */
-    border: 1px solid #e5e7eb; /* sutileza no tema claro */
+    width: ${({ $w }) => typeof $w === 'number' ? $w + 'px' : ($w || '100%')}; /* default to full width */
+    height: ${({ $h }) => typeof $h === 'number' ? $h + 'px' : ($h || 'auto')}; /* allow auto height */
+    min-height: 8rem; /* keep a minimal base but let it grow */
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
     border-radius: 1rem;
-    overflow: hidden;
+    overflow: visible; /* prevent clipping inside */
     font-size: 16px;
-    --gradient: ${({ $gradient }) => $gradient || 'var(--primary-color)'}; /* barra única na secondary */
-    --color: ${({ $color }) => $color || 'var(--secondary-color)'}; /* título na secondary */
+    --gradient: ${({ $gradient }) => $gradient || 'var(--primary-color)'};
+    --color: ${({ $color }) => $color || 'var(--secondary-color)'};
     cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
     transition: box-shadow 300ms ease, transform 300ms ease;
     color: #111827;
+    align-items: stretch; /* children full width */
   }
   .notification:before {
     position: absolute;
     content: '';
     inset: 0.0625rem;
     border-radius: 0.9375rem;
-    background: #ffffff; /* camada interna clara */
+    background: #ffffff;
     z-index: 2;
   }
   .notification:after {
@@ -50,7 +53,7 @@ const StyledWrapper = styled.div<{
     width: 0.25rem;
     inset: 0.65rem auto 0.65rem 0.5rem;
     border-radius: 0.125rem;
-    background: var(--gradient); /* barra lateral em secondary */
+    background: var(--gradient);
     transition: transform 300ms ease;
     z-index: 4;
   }
@@ -68,15 +71,19 @@ const StyledWrapper = styled.div<{
   }
   .notification:hover .notititle { transform: translateX(0.15rem); }
   .notibody {
-    color: #374151; /* texto secundário escuro no claro */
+    color: #374151;
     padding: 0 1.25rem 0.85rem;
     transition: transform 300ms ease;
     z-index: 5;
     font-size: 0.78rem;
     line-height: 1.25;
-    flex: 1;
     display: flex;
-    align-items: flex-start;
+    flex-direction: column; /* stack children vertically */
+    align-items: stretch;    /* full width */
+    gap: 0.4rem;
+    margin-top: ${({ $hasTitle }) => ($hasTitle ? '0.75rem' : '0')}; /* remove top gap when no title */
+    width: 100%;
+    flex: 1 1 auto;         /* grow with content */
   }
   .notification:hover .notibody { transform: translateX(0.25rem); }
   .notiglow, .notiborderglow {
@@ -97,25 +104,30 @@ const StyledWrapper = styled.div<{
   }
 `
 
-export const FancyCard: React.FC<FancyCardProps> = ({ title, body, children, width, height, gradient, color, onClick, role, tabIndex }) => (
-  <StyledWrapper $w={width} $h={height} $gradient={gradient} $color={color} $clickable={!!onClick}>
-    <div
-      className="notification"
-      onClick={onClick}
-      role={role}
-      tabIndex={tabIndex}
-      onKeyDown={(e) => { if(onClick && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); onClick(); } }}
-    >
-      <div className="notiglow" />
-      <div className="notiborderglow" />
-      <h4 className="notititle" title={title}>{title}</h4>
-      {children ? (
-        <div className="notibody" role="group">{children}</div>
-      ) : (
-        body && <div className="notibody">{body}</div>
-      )}
-    </div>
-  </StyledWrapper>
-)
+export const FancyCard: React.FC<FancyCardProps> = ({
+  title, body, children, width, height, gradient, color, onClick, role, tabIndex, className
+}) => {
+  const hasTitle = !!title && title.trim().length > 0
+  return (
+    <StyledWrapper $w={width} $h={height} $gradient={gradient} $color={color} $clickable={!!onClick} $hasTitle={hasTitle}>
+      <div
+        className={`notification ${className ?? ''}`} // forward className to allow .card styles
+        onClick={onClick}
+        role={role}
+        tabIndex={tabIndex}
+        onKeyDown={(e) => { if(onClick && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); onClick(); } }}
+      >
+        <div className="notiglow" />
+        <div className="notiborderglow" />
+        {hasTitle && <h4 className="notititle" title={title}>{title}</h4>}
+        {children ? (
+          <div className="notibody" role="group">{children}</div>
+        ) : (
+          body && <div className="notibody">{body}</div>
+        )}
+      </div>
+    </StyledWrapper>
+  )
+}
 
 export default FancyCard

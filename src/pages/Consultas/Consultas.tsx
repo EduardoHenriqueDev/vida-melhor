@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabaseClient'
 import './Consultas.css'
 import { FaPlus } from 'react-icons/fa'
 import Modal, { ModalFooter, ModalAction } from '../../components/Modal/Modal'
+import FancyCard from '../../components/FancyCard/FancyCard'
 
 interface ConsultasProps {
   onBack?: () => void
@@ -289,29 +290,25 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
       {!loading && !loadError && consultations.length > 0 && (
         <div className="grid">
           {consultations.map(c => (
-            <div key={c.id} className="card">
+            <FancyCard
+              key={c.id}
+              title=""
+              className="card consult-card"
+              width="100%"
+              height="auto"
+            >
               <div className="card-body">
-                {isCarer && (
-                  <h3 className="name">{c.name}</h3>
-                )}
-
+                {isCarer && <h3 className="name">{c.name}</h3>}
                 <div className="consultation-meta">
-                  <span className="consultation-date">
-                    {formatDate(c.date)}
-                  </span>
+                  <span className="consultation-date">{formatDate(c.date)}</span>
                   <span className={`consultation-badge ${c.type}`}>
-                    {c.type === 'presencial'
-                      ? 'Presencial'
-                      : 'Telemedicina'}
+                    {c.type === 'presencial' ? 'Presencial' : 'Telemedicina'}
                   </span>
                 </div>
-
                 {(c.doctor_name || c.specialty) && (
                   <div className="consultation-extra">
                     {c.doctor_name && (
-                      <div className="consultation-doctor">
-                        Dr(a). {c.doctor_name}
-                      </div>
+                      <div className="consultation-doctor">Dr(a). {c.doctor_name}</div>
                     )}
                     {c.specialty && (
                       <div className="consultation-specialty">
@@ -321,7 +318,7 @@ const Consultas = ({ onBack, onNavigate }: ConsultasProps) => {
                   </div>
                 )}
               </div>
-            </div>
+            </FancyCard>
           ))}
         </div>
       )}

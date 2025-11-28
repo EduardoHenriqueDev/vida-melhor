@@ -194,6 +194,16 @@
 .consultation-doctor { font-size:0.7rem; font-weight:600; color:#111827; }
 .consultation-specialty { font-size:0.65rem; font-weight:600; color:#1e3a8a; text-transform:capitalize; }
 
+/* FancyCard consultation overrides */
+.consult-card .notibody {
+  padding: 0; /* remove FancyCard default body padding */
+}
+.consult-card .card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
 @media (min-width: 768px) {
   .modal-input { font-size: 0.95rem; padding: 0.7rem 0.85rem; }
   .radio-option { padding: 0.5rem 0.7rem; }

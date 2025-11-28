@@ -43,6 +43,21 @@
   box-shadow: none;
 }
 
+/* Full-width SearchBar with consistent gutters */
+.search-wrapper {
+  width: calc(100% - 2rem);
+  /* match .home-welcome */
+  /* max-width: 1200px; */
+  /* remove to keep identical behavior */
+  margin: 0.5rem auto 0;
+  /* match .home-welcome */
+}
+
+/* ensure the SearchBar element inside stretches if it uses block layout */
+.search-wrapper>* {
+  width: 100%;
+}
+
 .home-main {
   flex: 1;
   display: flex;
@@ -93,6 +108,7 @@
   .home-banner {
     display: none !important;
   }
+
   .home-actions {
     width: min(100% - 12rem, 960px);
     /* gutters: 6rem each side */
@@ -293,15 +309,47 @@
 
 /* Desktop optimization: hide banner and compact components */
 @media (min-width: 1024px) {
-  .home-banner { display: none !important; }
-  .welcome-top, .welcome-name { font-size: 1.75rem !important; }
-  .home-action-button.primary { min-height: 90px !important; font-size: 1.35rem !important; }
-  .home-actions .home-action-button:not(.primary) { min-height: 72px !important; font-size: 1.15rem !important; }
-  .home-emergency .home-action-button.emergency { min-height: 90px !important; font-size: 1.35rem !important; }
-  .home-action-button.role { min-height: 90px !important; font-size: 1.35rem !important; }
-  .med-card.mini { padding: 0.5rem 0.6rem !important; }
-  .med-name { font-size: 0.75rem !important; }
-  .med-desc { font-size: 0.55rem !important; -webkit-line-clamp: 2; }
+  .home-banner {
+    display: none !important;
+  }
+
+  .welcome-top,
+  .welcome-name {
+    font-size: 1.75rem !important;
+  }
+
+  .home-action-button.primary {
+    min-height: 90px !important;
+    font-size: 1.35rem !important;
+  }
+
+  .home-actions .home-action-button:not(.primary) {
+    min-height: 72px !important;
+    font-size: 1.15rem !important;
+  }
+
+  .home-emergency .home-action-button.emergency {
+    min-height: 90px !important;
+    font-size: 1.35rem !important;
+  }
+
+  .home-action-button.role {
+    min-height: 90px !important;
+    font-size: 1.35rem !important;
+  }
+
+  .med-card.mini {
+    padding: 0.5rem 0.6rem !important;
+  }
+
+  .med-name {
+    font-size: 0.75rem !important;
+  }
+
+  .med-desc {
+    font-size: 0.55rem !important;
+    -webkit-line-clamp: 2;
+  }
 }
 
 .home-emergency {
@@ -468,67 +516,162 @@
 }
 
 /* Ajustes de texto dentro do quadrado */
-.med-mini-header { margin-bottom: 0.35rem; }
-.med-desc { -webkit-line-clamp: 3; }
-.med-meta-line { margin-top: auto; }
+.med-mini-header {
+  margin-bottom: 0.35rem;
+}
+
+.med-desc {
+  -webkit-line-clamp: 3;
+}
+
+.med-meta-line {
+  margin-top: auto;
+}
 
 /* Skeletons quadrados nas grades */
-.meds-row .skeleton { aspect-ratio: auto; min-height: 96px; }
+.meds-row .skeleton {
+  aspect-ratio: auto;
+  min-height: 96px;
+}
 
 /* sm+ */
 @media (min-width: 640px) {
-  .meds-row { grid-template-columns: repeat(auto-fill, minmax(160px, 160px)); }
+  .meds-row {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 160px));
+  }
 }
 
 /* lg+ */
 @media (min-width: 1024px) {
-  .meds-row { grid-template-columns: repeat(auto-fill, minmax(180px, 180px)); }
+  .meds-row {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 180px));
+  }
 }
 
 /* Visual aprimorado para cartões de Medicamentos */
 .med-card.mini {
-  background: linear-gradient(#ffffff,#ffffff) padding-box,
-              linear-gradient(135deg,var(--primary-light),var(--secondary-light)) border-box;
+  background: linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, var(--primary-light), var(--secondary-light)) border-box;
   border: 1px solid transparent;
-  box-shadow: 0 4px 10px rgba(0,0,0,.04);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .04);
   position: relative;
   isolation: isolate;
   transition: box-shadow .18s ease, transform .14s ease, background .25s ease;
   border-radius: 14px;
 }
+
 .med-card.mini::before {
-  content:'';
-  position:absolute; inset:0;
-  background: radial-gradient(circle at 70% 20%, rgba(0,0,0,.05), transparent 70%);
-  opacity:.4; pointer-events:none; mix-blend-mode: multiply; border-radius: inherit;
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 20%, rgba(0, 0, 0, .05), transparent 70%);
+  opacity: .4;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  border-radius: inherit;
 }
-.med-card.mini:hover { box-shadow: 0 10px 24px rgba(0,0,0,.10); transform: translateY(-4px); }
-.med-card.mini:active { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.12); }
-.med-card.mini:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--primary-light), 0 8px 20px rgba(0,0,0,.12); }
-.med-name { font-weight: 700; letter-spacing:.3px; }
-.med-desc { font-size: 0.6rem !important; -webkit-line-clamp: 3; line-clamp: 3; }
-.med-meta-line { font-size: 0.58rem !important; }
-.med-stock { font-weight: 600; }
+
+.med-card.mini:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .10);
+  transform: translateY(-4px);
+}
+
+.med-card.mini:active {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .12);
+}
+
+.med-card.mini:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-light), 0 8px 20px rgba(0, 0, 0, .12);
+}
+
+.med-name {
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+
+.med-desc {
+  font-size: 0.6rem !important;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+.med-meta-line {
+  font-size: 0.58rem !important;
+}
+
+.med-stock {
+  font-weight: 600;
+}
 
 /* Ampliação de tamanho e fontes dos cards de Medicamentos e Consultas */
-.med-card.mini { padding: 1rem 1.15rem !important; }
-.med-name { font-size: 0.95rem !important; }
-.med-desc { font-size: 0.75rem !important; }
-.med-card.mini .med-stock { font-size: 0.75rem !important; }
-.med-meta-line { font-size: 0.7rem !important; }
-@media (min-width:640px){ .meds-row { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); } }
-@media (min-width:1024px){ .meds-row { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); } }
+.med-card.mini {
+  padding: 1rem 1.15rem !important;
+}
 
-.consult-card { padding: 1rem 1.15rem !important; }
-.consult-name { font-size: 0.95rem !important; }
-.consult-type { font-size: 0.7rem !important; }
-.consult-doc { font-size: 0.75rem !important; }
-.consult-date { font-size: 0.75rem !important; }
-.consult-meta-line { font-size: 0.7rem !important; }
-@media (min-width:1024px){ .home-consultations .consult-row { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); } }
+.med-name {
+  font-size: 0.95rem !important;
+}
+
+.med-desc {
+  font-size: 0.75rem !important;
+}
+
+.med-card.mini .med-stock {
+  font-size: 0.75rem !important;
+}
+
+.med-meta-line {
+  font-size: 0.7rem !important;
+}
+
+@media (min-width:640px) {
+  .meds-row {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  }
+}
+
+@media (min-width:1024px) {
+  .meds-row {
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  }
+}
+
+.consult-card {
+  padding: 1rem 1.15rem !important;
+}
+
+.consult-name {
+  font-size: 0.95rem !important;
+}
+
+.consult-type {
+  font-size: 0.7rem !important;
+}
+
+.consult-doc {
+  font-size: 0.75rem !important;
+}
+
+.consult-date {
+  font-size: 0.75rem !important;
+}
+
+.consult-meta-line {
+  font-size: 0.7rem !important;
+}
+
+@media (min-width:1024px) {
+  .home-consultations .consult-row {
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  }
+}
 
 /* Badges internas padronizadas (reutiliza existente) */
-.badge { backdrop-filter: blur(2px); }
+.badge {
+  backdrop-filter: blur(2px);
+}
 
 /* Grid quadrado para Consultas (desktop) */
 @media (min-width: 1024px) {
@@ -542,62 +685,193 @@
     padding-bottom: 0;
     justify-content: start;
   }
-  .consult-card { aspect-ratio: auto; padding: 0.7rem 0.85rem; border-radius: 12px; }
-  .home-consultations .skeleton { aspect-ratio: auto; min-height: 96px; }
-  .consult-meta-line:last-child { margin-top: auto; }
+
+  .consult-card {
+    aspect-ratio: auto;
+    padding: 0.7rem 0.85rem;
+    border-radius: 12px;
+  }
+
+  .home-consultations .skeleton {
+    aspect-ratio: auto;
+    min-height: 96px;
+  }
+
+  .consult-meta-line:last-child {
+    margin-top: auto;
+  }
 }
 
 /* Ajuste: consultas ocupam só o necessário */
-.home-consultations { height:auto !important; }
-.consult-row { align-content:start; }
-.consult-card { aspect-ratio:auto !important; min-height:auto !important; }
+.home-consultations {
+  height: auto !important;
+}
+
+.consult-row {
+  align-content: start;
+}
+
+.consult-card {
+  aspect-ratio: auto !important;
+  min-height: auto !important;
+}
 
 /* Visual aprimorado para cartões de Consultas */
 .consult-card {
-  background: linear-gradient(#ffffff,#ffffff) padding-box,
-              linear-gradient(135deg,var(--secondary-light),var(--primary-light)) border-box;
-  border:1px solid transparent;
-  box-shadow:0 4px 10px rgba(0,0,0,.04);
-  position:relative; isolation:isolate; border-radius:14px;
+  background: linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, var(--secondary-light), var(--primary-light)) border-box;
+  border: 1px solid transparent;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .04);
+  position: relative;
+  isolation: isolate;
+  border-radius: 14px;
   transition: box-shadow .18s ease, transform .14s ease, background .25s ease;
 }
-.consult-card::before { content:''; position:absolute; inset:0; background: radial-gradient(circle at 30% 75%, rgba(0,0,0,.05), transparent 70%); opacity:.45; mix-blend-mode:multiply; pointer-events:none; border-radius:inherit; }
-.consult-card:hover { box-shadow:0 10px 24px rgba(0,0,0,.10); transform:translateY(-4px); }
-.consult-card:active { transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,.12); }
-.consult-card:focus-visible { outline:none; box-shadow:0 0 0 3px var(--secondary-light), 0 8px 20px rgba(0,0,0,.12); }
-.consult-name { font-weight:700; letter-spacing:.3px; }
-.consult-meta-line { font-size:.58rem !important; opacity:.9; }
-.consult-type, .consult-doc, .consult-spec {
-  display:inline-flex; align-items:center; gap:2px; font-weight:600; padding:.25rem .45rem; border-radius:999px;
-  background:#f3f4f6; border:1px solid #e5e7eb; text-transform:none; letter-spacing:.25px; line-height:1; white-space:nowrap;
+
+.consult-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 75%, rgba(0, 0, 0, .05), transparent 70%);
+  opacity: .45;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  border-radius: inherit;
 }
-.consult-type { background: var(--primary-light); color: var(--primary-color); border-color: var(--primary-color); }
-.consult-doc { display: block; padding: 0; background: transparent; border: none; border-radius: 0; font-size: 0.65rem; font-weight: 600; color: #4b5563; line-height: 1.1; }
-.consult-spec { background:#eef2ff; color:#1e3a8a; border-color:#c7d2fe; }
+
+.consult-card:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .10);
+  transform: translateY(-4px);
+}
+
+.consult-card:active {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .12);
+}
+
+.consult-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--secondary-light), 0 8px 20px rgba(0, 0, 0, .12);
+}
+
+.consult-name {
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+
+.consult-meta-line {
+  font-size: .58rem !important;
+  opacity: .9;
+}
+
+.consult-type,
+.consult-doc,
+.consult-spec {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 600;
+  padding: .25rem .45rem;
+  border-radius: 999px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  text-transform: none;
+  letter-spacing: .25px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.consult-type {
+  background: var(--primary-light);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.consult-doc {
+  display: block;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #4b5563;
+  line-height: 1.1;
+}
+
+.consult-spec {
+  background: #eef2ff;
+  color: #1e3a8a;
+  border-color: #c7d2fe;
+}
 
 /* Estado de foco para acessibilidade em mix de teclado */
-.med-card.mini:focus-visible, .consult-card:focus-visible { outline:none; }
+.med-card.mini:focus-visible,
+.consult-card:focus-visible {
+  outline: none;
+}
 
 /* Animação sutil de aparição */
-@keyframes cardFadeUp { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
-.meds-row .med-card.mini, .consult-row .consult-card { animation: cardFadeUp .35s ease both; }
+@keyframes cardFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.meds-row .med-card.mini,
+.consult-row .consult-card {
+  animation: cardFadeUp .35s ease both;
+}
 
 /* Preferência de usuário reduzindo motion */
 @media (prefers-reduced-motion: reduce) {
-  .med-card.mini, .consult-card { transition:none; }
-  .meds-row .med-card.mini, .consult-row .consult-card { animation:none; }
+
+  .med-card.mini,
+  .consult-card {
+    transition: none;
+  }
+
+  .meds-row .med-card.mini,
+  .consult-row .consult-card {
+    animation: none;
+  }
 }
 
 /* Minor hover for consult-card status */
-.consult-card:hover .consult-status { filter: brightness(1.05); }
+.consult-card:hover .consult-status {
+  filter: brightness(1.05);
+}
 
-.consult-error { font-size:0.75rem; color:#b91c1c; display:flex; align-items:center; }
+.consult-error {
+  font-size: 0.75rem;
+  color: #b91c1c;
+  display: flex;
+  align-items: center;
+}
 
 /* Ajustar scroll estilizado da linha de consultas */
-.home-consultations .consult-row::-webkit-scrollbar { height:8px; }
-.home-consultations .consult-row::-webkit-scrollbar-track { background:transparent; }
-.home-consultations .consult-row::-webkit-scrollbar-thumb { background:#e5e7eb; border-radius:8px; }
-.home-consultations .consult-row::-webkit-scrollbar-thumb:hover { background:#d1d5db; }
+.home-consultations .consult-row::-webkit-scrollbar {
+  height: 8px;
+}
+
+.home-consultations .consult-row::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.home-consultations .consult-row::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 8px;
+}
+
+.home-consultations .consult-row::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
 
 .home-role {
   width: min(100% - 4rem, 960px);
@@ -686,69 +960,286 @@
 }
 
 @media (min-width: 1024px) {
-  .welcome { flex-direction: row !important; align-items: baseline; gap: 0.5rem; }
-  .welcome-top, .welcome-name { font-size: 1.25rem !important; }
+  .welcome {
+    flex-direction: row !important;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .welcome-top,
+  .welcome-name {
+    font-size: 1.25rem !important;
+  }
 }
 
 @media (min-width: 1024px) {
-  .home-bottom { margin-top: auto; display: flex; align-items: flex-end; justify-content: center; gap: 0.75rem; width: min(100% - 12rem, 960px); margin-left: auto; margin-right: auto; margin-bottom: 0.75rem; }
-  .home-bottom > .home-emergency,
-  .home-bottom > .home-actions,
-  .home-bottom > .home-role { width: auto; margin: 0; }
-  .home-emergency { width: auto; }
-  .home-role { width: auto; }
-  .home-actions { display: flex; grid-template-columns: none; width: auto; gap: 0.5rem; margin: 0; }
-  .home-action-button.primary { grid-column: auto; }
+  .home-bottom {
+    margin-top: auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.75rem;
+    width: min(100% - 12rem, 960px);
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 0.75rem;
+  }
+
+  .home-bottom>.home-emergency,
+  .home-bottom>.home-actions,
+  .home-bottom>.home-role {
+    width: auto;
+    margin: 0;
+  }
+
+  .home-emergency {
+    width: auto;
+  }
+
+  .home-role {
+    width: auto;
+  }
+
+  .home-actions {
+    display: flex;
+    grid-template-columns: none;
+    width: auto;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  .home-action-button.primary {
+    grid-column: auto;
+  }
+
   .home-action-button.primary,
   .home-emergency .home-action-button.emergency,
   .home-action-button.role,
-  .home-actions .home-action-button:not(.primary) { min-height: 60px !important; font-size: 1rem !important; padding: 0.75rem 0.9rem !important; }
-  .home-action-button .icon { font-size: 1.1rem !important; }
+  .home-actions .home-action-button:not(.primary) {
+    min-height: 60px !important;
+    font-size: 1rem !important;
+    padding: 0.75rem 0.9rem !important;
+  }
+
+  .home-action-button .icon {
+    font-size: 1.1rem !important;
+  }
 }
 
 @media (min-width: 1024px) {
-  .meds-row { grid-auto-columns: minmax(200px, 1fr); gap: 1rem; }
-  .med-card.mini { padding: 0.85rem 1rem !important; }
-  .med-name { font-size: 0.85rem !important; }
-  .med-desc { font-size: 0.6rem !important; }
-  .med-meta-line { font-size: 0.6rem !important; }
+  .meds-row {
+    grid-auto-columns: minmax(200px, 1fr);
+    gap: 1rem;
+  }
+
+  .med-card.mini {
+    padding: 0.85rem 1rem !important;
+  }
+
+  .med-name {
+    font-size: 0.85rem !important;
+  }
+
+  .med-desc {
+    font-size: 0.6rem !important;
+  }
+
+  .med-meta-line {
+    font-size: 0.6rem !important;
+  }
 }
 
 /* Remover estilos específicos de farmácias obsoletos se desejado (mantidos para possível reutilização) */
 /* .home-pharmacies, .pharm-header, .pharm-card etc. podem ser removidos futuramente */
 
-.home-pharmacies { display: none; }
-@media (min-width: 1024px) {
-  .home-pharmacies { display: block; width: min(100% - 2rem, 1200px); margin: 0.75rem auto 0; }
-  .pharm-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem; }
-  .pharm-title { margin:0; color:#111827; }
-  .pharm-row { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(200px,1fr); gap:1rem; overflow-x:auto; padding-bottom:0.5rem; -webkit-overflow-scrolling:touch; }
-  .pharm-card { text-align:left; display:flex; flex-direction:column; align-items:flex-start; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:0.85rem 1rem; min-height:140px; cursor:pointer; transition:box-shadow .15s, transform .1s; }
-  .pharm-card:hover { box-shadow:0 4px 12px rgba(0,0,0,.08); transform:translateY(-2px); }
-  .pharm-name { font-size:0.85rem; font-weight:600; color:#111827; line-height:1.2; margin-bottom:0.35rem; }
-  .pharm-email { font-size:0.6rem; color:#4b5563; word-break:break-all; }
-  .pharm-error { font-size:0.75rem; color:#b91c1c; display:flex; align-items:center; }
+.home-pharmacies {
+  display: none;
 }
 
 @media (min-width: 1024px) {
-  .home-pharmacies { width: min(100% - 2rem, 1200px); }
-  .pharm-card { min-height: auto !important; padding: 0.55rem 0.65rem !important; }
-  .pharm-name { margin-bottom: 0.2rem !important; }
-  .pharm-email, .pharm-address, .pharm-contact { margin-top: 0.15rem; }
+  .home-pharmacies {
+    display: block;
+    width: min(100% - 2rem, 1200px);
+    margin: 0.75rem auto 0;
+  }
+
+  .pharm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .pharm-title {
+    margin: 0;
+    color: #111827;
+  }
+
+  .pharm-row {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(200px, 1fr);
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pharm-card {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    min-height: 140px;
+    cursor: pointer;
+    transition: box-shadow .15s, transform .1s;
+  }
+
+  .pharm-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+    transform: translateY(-2px);
+  }
+
+  .pharm-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.2;
+    margin-bottom: 0.35rem;
+  }
+
+  .pharm-email {
+    font-size: 0.6rem;
+    color: #4b5563;
+    word-break: break-all;
+  }
+
+  .pharm-error {
+    font-size: 0.75rem;
+    color: #b91c1c;
+    display: flex;
+    align-items: center;
+  }
 }
 
-.search-results { width: calc(100% - 2rem); max-width:1200px; margin:0.25rem auto 0; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:0.75rem 0.85rem; box-shadow:0 4px 16px rgba(0,0,0,0.08); display:flex; flex-direction:column; gap:0.75rem; }
-.search-status, .search-error, .search-empty { font-size:0.75rem; color:#374151; }
-.search-error { color:#b91c1c; }
-.search-group { display:flex; flex-direction:column; gap:0.35rem; }
-.group-title { font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#6b7280; }
-.group-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.25rem; }
-.search-item { width:100%; text-align:left; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; padding:0.5rem 0.6rem; display:flex; flex-direction:column; gap:0.15rem; cursor:pointer; transition:background .15s, box-shadow .15s; }
-.search-item:hover { background:#ffffff; box-shadow:0 2px 6px rgba(0,0,0,0.06); }
-.item-name { font-size:0.8rem; font-weight:600; color:#111827; line-height:1.1; }
-.item-meta { font-size:0.6rem; color:#6b7280; line-height:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.item-meta.out-of-stock { color:#dc2626; font-weight:600; }
-@media (min-width:1024px){ .search-results { width:min(100% - 12rem,960px); } }
+@media (min-width: 1024px) {
+  .home-pharmacies {
+    width: min(100% - 2rem, 1200px);
+  }
+
+  .pharm-card {
+    min-height: auto !important;
+    padding: 0.55rem 0.65rem !important;
+  }
+
+  .pharm-name {
+    margin-bottom: 0.2rem !important;
+  }
+
+  .pharm-email,
+  .pharm-address,
+  .pharm-contact {
+    margin-top: 0.15rem;
+  }
+}
+
+.search-results {
+  width: calc(100% - 2rem);
+  max-width: 1200px;
+  margin: 0.25rem auto 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.search-status,
+.search-error,
+.search-empty {
+  font-size: 0.75rem;
+  color: #374151;
+}
+
+.search-error {
+  color: #b91c1c;
+}
+
+.search-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.group-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: #6b7280;
+}
+
+.group-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.search-item {
+  width: 100%;
+  text-align: left;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  cursor: pointer;
+  transition: background .15s, box-shadow .15s;
+}
+
+.search-item:hover {
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.item-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.1;
+}
+
+.item-meta {
+  font-size: 0.6rem;
+  color: #6b7280;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-meta.out-of-stock {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+@media (min-width:1024px) {
+  .search-results {
+    width: min(100% - 12rem, 960px);
+  }
+}
 
 .welcome-link {
   color: #111827;
@@ -756,127 +1247,417 @@
   text-underline-offset: 2px;
   text-decoration-color: currentColor;
 }
+
 .welcome-link:hover {
   color: var(--primary-color);
   text-decoration-color: currentColor;
 }
 
-.home-consultations { display: none; }
+.home-consultations {
+  display: none;
+}
+
 @media (min-width: 1024px) {
-  .home-consultations { display:block; width:min(100% - 2rem,1200px); margin:0.75rem auto 0; }
-  .consult-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem; }
-  .consult-title { margin:0; color:#111827; }
-  .consult-row { display:grid; grid-auto-flow:row; grid-auto-columns:initial; grid-template-columns:repeat(auto-fill, minmax(200px, 200px)); gap:1rem; overflow:visible; padding-bottom:0; justify-content:start; }
-  .consult-card { text-align:left; display:flex; flex-direction:column; align-items:flex-start; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:0.85rem 1rem; min-height:140px; cursor:pointer; transition:box-shadow .15s, transform .1s; aspect-ratio: 1 / 1; }
-  .consult-card:hover { box-shadow:0 4px 12px rgba(0,0,0,.08); transform:translateY(-2px); }
-  .consult-name { font-size:0.8rem; font-weight:600; color:#111827; line-height:1.2; margin-bottom:0.35rem; }
-  .consult-date { display:block; margin-top:0.35rem; }
-  .consult-status { margin-top:0.25rem; font-size:0.55rem; font-weight:700; padding:0.2rem 0.45rem; border-radius:999px; background:#f3f4f6; color:#374151; border:1px solid #e5e7eb; text-transform:uppercase; letter-spacing:.5px; }
-  .consult-status.confirmada { background:var(--secondary-light); color:var(--secondary-color); border-color:var(--secondary-color); }
-  .consult-status.cancelada { background:#fee2e2; color:#b91c1c; border-color:#fecaca; }
-  .consult-status.pendente { background:#fef9c3; color:#ca8a04; border-color:#fde68a; }
-  .consult-meta-line:last-child { margin-top: auto; }
+  .home-consultations {
+    display: block;
+    width: min(100% - 2rem, 1200px);
+    margin: 0.75rem auto 0;
+  }
+
+  .consult-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .consult-title {
+    margin: 0;
+    color: #111827;
+  }
+
+  .consult-row {
+    display: grid;
+    grid-auto-flow: row;
+    grid-auto-columns: initial;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 200px));
+    gap: 1rem;
+    overflow: visible;
+    padding-bottom: 0;
+    justify-content: start;
+  }
+
+  .consult-card {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    min-height: 140px;
+    cursor: pointer;
+    transition: box-shadow .15s, transform .1s;
+    aspect-ratio: 1 / 1;
+  }
+
+  .consult-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+    transform: translateY(-2px);
+  }
+
+  .consult-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.2;
+    margin-bottom: 0.35rem;
+  }
+
+  .consult-date {
+    display: block;
+    margin-top: 0.35rem;
+  }
+
+  .consult-status {
+    margin-top: 0.25rem;
+    font-size: 0.55rem;
+    font-weight: 700;
+    padding: 0.2rem 0.45rem;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  .consult-status.confirmada {
+    background: var(--secondary-light);
+    color: var(--secondary-color);
+    border-color: var(--secondary-color);
+  }
+
+  .consult-status.cancelada {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #fecaca;
+  }
+
+  .consult-status.pendente {
+    background: #fef9c3;
+    color: #ca8a04;
+    border-color: #fde68a;
+  }
+
+  .consult-meta-line:last-child {
+    margin-top: auto;
+  }
 }
 
 /* Largura automática dos consult-card para caber specialty completo */
-.consult-name { white-space: nowrap; }
-.consult-card { width: auto; min-width: 240px; max-width: 280px; }
-@media (min-width:1280px){ .consult-card { min-width:260px; max-width:300px; } }
-.consult-mini-header { flex-wrap:nowrap; }
+.consult-name {
+  white-space: nowrap;
+}
+
+.consult-card {
+  width: auto;
+  min-width: 240px;
+  max-width: 280px;
+}
+
+@media (min-width:1280px) {
+  .consult-card {
+    min-width: 260px;
+    max-width: 300px;
+  }
+}
+
+.consult-mini-header {
+  flex-wrap: nowrap;
+}
+
 /* Remover regra anterior de width: fit-content se ainda aplicada */
 
 /* Visual refinado para o card de medicamentos na Home */
 .med-card.mini {
   position: relative;
-  background: linear-gradient(#ffffff,#ffffff) padding-box,
-              linear-gradient(135deg,var(--primary-light),var(--secondary-light)) border-box;
+  background: linear-gradient(#ffffff, #ffffff) padding-box,
+    linear-gradient(135deg, var(--primary-light), var(--secondary-light)) border-box;
   border: 1px solid transparent;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,.04);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .04);
 }
+
 .med-card.mini::after {
   content: '';
-  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  background: radial-gradient(60% 60% at 120% -10%, rgba(0,0,0,.06), transparent 60%);
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(60% 60% at 120% -10%, rgba(0, 0, 0, .06), transparent 60%);
 }
-.med-mini-header { display:flex; align-items:center; justify-content:space-between; gap:.5rem; }
-.med-name { font-weight: 700; letter-spacing: .2px; }
+
+.med-mini-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.med-name {
+  font-weight: 700;
+  letter-spacing: .2px;
+}
 
 /* Chip de frequência */
-.med-freq { display:inline-flex; align-items:center; gap:.25rem; padding:.18rem .45rem; border-radius:999px; font-size:.6rem; font-weight:700; letter-spacing:.2px; background: var(--secondary-light); color: var(--secondary-color); border:1px solid var(--secondary-color); }
-.med-freq::before { content:'💊'; font-size:.75rem; line-height:1; }
+.med-freq {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  padding: .18rem .45rem;
+  border-radius: 999px;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .2px;
+  background: var(--secondary-light);
+  color: var(--secondary-color);
+  border: 1px solid var(--secondary-color);
+}
+
+.med-freq::before {
+  content: '💊';
+  font-size: .75rem;
+  line-height: 1;
+}
 
 /* Ajustes de conteúdo */
-.med-desc { color:#4b5563; }
-.med-stock { color:#6b7280; }
-.med-meta-line { margin-top:auto; }
+.med-desc {
+  color: #4b5563;
+}
+
+.med-stock {
+  color: #6b7280;
+}
+
+.med-meta-line {
+  margin-top: auto;
+}
 
 /* Interação */
-.med-card.mini:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0,0,0,.10); }
-.med-card.mini:active { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.12); }
-.med-card.mini:focus-visible { outline:none; box-shadow: 0 0 0 3px var(--primary-light), 0 8px 20px rgba(0,0,0,.12); }
+.med-card.mini:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, .10);
+}
+
+.med-card.mini:active {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .12);
+}
+
+.med-card.mini:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-light), 0 8px 20px rgba(0, 0, 0, .12);
+}
 
 /* Ajuste de alinhamento e fonte para dose e estoque nos cards de medicamentos */
-.med-card.mini .med-desc { text-align: left; font-size: 0.65rem !important; }
-.med-card.mini .med-meta-line { display: flex; flex-direction: column; align-items: flex-start; gap: 0.2rem; }
-.med-card.mini .med-stock { text-align: left; font-size: 0.65rem !important; }
+.med-card.mini .med-desc {
+  text-align: left;
+  font-size: 0.65rem !important;
+}
+
+.med-card.mini .med-meta-line {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+
+.med-card.mini .med-stock {
+  text-align: left;
+  font-size: 0.65rem !important;
+}
 
 /* Consult cards alinhados ao layout dos medicamentos */
-.consult-mini-header { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-bottom:.35rem; }
-.consult-type { display:inline-flex; align-items:center; gap:.25rem; padding:.18rem .45rem; border-radius:999px; font-size:.6rem; font-weight:700; letter-spacing:.2px; background: var(--secondary-light); color: var(--secondary-color); border:1px solid var(--secondary-color); }
-.consult-name { font-weight:700; letter-spacing:.2px; }
-.consult-desc { display:block; font-size:0.6rem; color:#4b5563; text-align:left; margin-bottom:.35rem; }
-.consult-doc { display: block; padding: 0; background: transparent; border: none; border-radius: 0; font-size: 0.65rem; font-weight: 600; color: #4b5563; line-height: 1.1; }
-.consult-date { display:block; margin-top:0.35rem; }
-.consult-meta-line { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-top:auto; }
+.consult-mini-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-bottom: .35rem;
+}
+
+.consult-type {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  padding: .18rem .45rem;
+  border-radius: 999px;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .2px;
+  background: var(--secondary-light);
+  color: var(--secondary-color);
+  border: 1px solid var(--secondary-color);
+}
+
+.consult-name {
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+.consult-desc {
+  display: block;
+  font-size: 0.6rem;
+  color: #4b5563;
+  text-align: left;
+  margin-bottom: .35rem;
+}
+
+.consult-doc {
+  display: block;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #4b5563;
+  line-height: 1.1;
+}
+
+.consult-date {
+  display: block;
+  margin-top: 0.35rem;
+}
+
+.consult-meta-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-top: auto;
+}
 
 /* Overrides finais para consultas (desktop): garantir grid e colunas mais largas */
-@media (min-width:1024px){
-  .home-consultations .consult-row { display:flex !important; flex-wrap:wrap !important; gap:.75rem !important; justify-content:flex-start !important; }
-  .home-consultations .consult-card { width:auto !important; max-width:100% !important; min-width:0 !important; padding:.75rem .85rem !important; }
-  .home-consultations .consult-mini-header { flex-wrap:wrap !important; }
-  .home-consultations .consult-name { white-space:normal !important; }
+@media (min-width:1024px) {
+  .home-consultations .consult-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: .75rem !important;
+    justify-content: flex-start !important;
+  }
+
+  .home-consultations .consult-card {
+    width: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: .75rem .85rem !important;
+  }
+
+  .home-consultations .consult-mini-header {
+    flex-wrap: wrap !important;
+  }
+
+  .home-consultations .consult-name {
+    white-space: normal !important;
+  }
 }
 
 .create-card {
-  text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  background:#fff; border:1px dashed #cbd5e1; border-radius:12px; padding:0.85rem 1rem; min-height:140px;
-  color:#111827; gap:.35rem; cursor:pointer; transition:box-shadow .15s, transform .1s, border-color .15s;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  min-height: 140px;
+  color: #111827;
+  gap: .35rem;
+  cursor: pointer;
+  transition: box-shadow .15s, transform .1s, border-color .15s;
 }
-.create-card .icon { font-size:1.25rem; color: var(--primary-color); }
-.create-card:hover { border-color: var(--primary-color); box-shadow:0 4px 12px rgba(0,0,0,.08); transform:translateY(-2px); }
-.create-card span { font-size:0.85rem; font-weight:700; }
+
+.create-card .icon {
+  font-size: 1.25rem;
+  color: var(--primary-color);
+}
+
+.create-card:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+  transform: translateY(-2px);
+}
+
+.create-card span {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
 
 /* Tamanho e estilo do card de criação igual aos cards existentes */
 .meds-row .create-card,
 .consult-row .create-card {
-  min-height: auto; /* não força altura grande */
-  padding: 0.6rem 0.7rem !important; /* compacto, igual med-card quadrado */
-  background: #fff; /* simplifica para não destacar demais */
-  border: 1px dashed #cbd5e1; /* mantém indicação de criação */
+  min-height: auto;
+  /* não força altura grande */
+  padding: 0.7rem 0.85rem !important; /* igual ao consultation */
+  /* compacto, igual med-card quadrado */
+  background: #fff;
+  /* simplifica para não destacar demais */
+  border: 1px dashed #cbd5e1;
+  /* mantém indicação de criação */
   box-shadow: none;
 }
 
-/* Ajustes por grid de medicamentos (quadrado) */
-.meds-row .create-card { 
-  /* segue as mesmas colunas de .meds-row */
-  height: auto; 
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.35rem;
-}
-
 /* lg+ */
-@media (min-width:1024px){ .meds-row .create-card { padding: 0.85rem 1rem !important; } }
-
-/* Ajustes por grid/lista de consultas (desktop) */
 @media (min-width:1024px){
-  .consult-row .create-card { 
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.35rem;
-    padding: 0.7rem 0.85rem !important; /* igual consult-card em desktop */
-    min-height: 140px; 
+  .meds-row .create-card {
+    padding: 0.7rem 0.85rem !important; /* igual ao consultation (desktop) */
+    min-height: auto !important;        /* igual ao consultation (desktop) */
   }
 }
 
-@media (min-width:1024px){
-  .home-consultations .consult-card { min-height: auto !important; }
-  .home-consultations .consult-row .create-card { min-height: auto !important; }
+/* Ajustes por grid de medicamentos (quadrado) */
+.meds-row .create-card {
+  /* segue as mesmas colunas de .meds-row */
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+}
+
+/* lg+ */
+@media (min-width:1024px) {
+  .meds-row .create-card {
+    padding: 0.85rem 1rem !important;
+  }
+}
+
+/* Ajustes por grid/lista de consultas (desktop) */
+@media (min-width:1024px) {
+  .consult-row .create-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    padding: 0.7rem 0.85rem !important;
+    /* igual consult-card em desktop */
+    min-height: 140px;
+  }
+}
+
+@media (min-width:1024px) {
+  .home-consultations .consult-card {
+    min-height: auto !important;
+  }
+
+  .home-consultations .consult-row .create-card {
+    min-height: auto !important;
+  }
 }

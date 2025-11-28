@@ -267,6 +267,67 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
     }
   }
 
+  // Play a longer and louder notification sound when the dose modal opens
+  useEffect(() => {
+    if (doseModalOpen && pendingMed) {
+      try {
+        const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext
+        const ctx = new AudioCtx()
+
+        // Dynamics compressor to boost perceived loudness
+        const comp = ctx.createDynamicsCompressor()
+        comp.threshold.value = -24  // start compressing earlier
+        comp.knee.value = 30
+        comp.ratio.value = 12
+        comp.attack.value = 0.003
+        comp.release.value = 0.25
+
+        // Master gain (higher base and overall envelope)
+        const master = ctx.createGain()
+        master.gain.value = 0.003 // was: 0.0008
+
+        // chain: tones -> master -> compressor -> destination
+        master.connect(comp)
+        comp.connect(ctx.destination)
+
+        const makeTone = (
+          freq: number,
+          start: number,
+          dur: number,
+          peak: number,
+          type: OscillatorType = 'triangle'
+        ) => {
+          const osc = ctx.createOscillator()
+          const gain = ctx.createGain()
+          osc.type = type
+          osc.frequency.value = freq
+          gain.gain.value = 0.0001
+          osc.connect(gain)
+          gain.connect(master)
+
+          const t0 = ctx.currentTime + start
+          osc.start(t0)
+          // envelope: stronger attack, longer sustain, slower decay
+          gain.gain.exponentialRampToValueAtTime(peak, t0 + 0.06)
+          gain.gain.exponentialRampToValueAtTime(peak * 0.8, t0 + dur * 0.55)
+          gain.gain.exponentialRampToValueAtTime(0.0002, t0 + dur)
+          osc.stop(t0 + dur + 0.03)
+        }
+
+        // Arpeggio/chime sequence (~2.5s), higher peaks
+        makeTone(660, 0.00, 1.1, 0.35, 'triangle')   // E5
+        makeTone(880, 0.25, 1.2, 0.40, 'sawtooth')   // A5
+        makeTone(990, 0.60, 1.1, 0.38, 'triangle')   // B5
+        makeTone(1320, 1.00, 1.0, 0.36, 'square')    // E6
+
+        // master gain envelope (stronger initial boost)
+        const now = ctx.currentTime
+        master.gain.exponentialRampToValueAtTime(0.01, now + 0.12)   // louder quickly
+        master.gain.exponentialRampToValueAtTime(0.003, now + 2.8)   // fade out
+      } catch {}
+    }
+  }, [doseModalOpen, pendingMed])
+
   return (
     <div className="home-container">
       <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} onNavigate={onNavigate} />
@@ -286,11 +347,13 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       </div>
 
       <div className="home-toolbar">
-        <SearchBar
-          value={searchTerm}
-          onChange={(v) => setSearchTerm(v)}
-          onSubmit={() => { /* opcional: manter comportamento */ }}
-        />
+        <div className="search-wrapper">
+          <SearchBar
+            value={searchTerm}
+            onChange={(v) => setSearchTerm(v)}
+            onSubmit={() => { }}
+          />
+        </div>
         {(searchTerm.trim().length >= 2) && (
           <div className="search-results" aria-live="polite">
             {searching && <div className="search-status">Buscando...</div>}
@@ -523,7 +586,12 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       />
 
       {doseModalOpen && pendingMed && (
-        <Modal open={doseModalOpen} onClose={() => setDoseModalOpen(false)} title="Hora do medicamento" width={480}>
+        <Modal
+          open={doseModalOpen}
+          onClose={() => { /* bloqueia fechamento pelo fundo/ESC */ }}
+          title="Hora do medicamento"
+          width={480}
+        >
           <div className="form">
             <div className="modal-field">
               <div className="modal-label">Você precisa tomar:</div>

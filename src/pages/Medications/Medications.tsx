@@ -7,6 +7,7 @@ import { signOut } from '../../services/authService'
 import './Medications.css'
 import Modal, { ModalAction } from '../../components/Modal/Modal'
 import { FaPlus } from 'react-icons/fa'
+import FancyCard from '../../components/FancyCard/FancyCard'
 
 interface MedicineRow {
   id: number
@@ -239,13 +240,15 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
       {!listLoading && !listError && items.length > 0 && (
         <div className="grid">
           {items.map((m) => (
-            <div
+            <FancyCard
               key={m.id}
-              className="card"
+              title=""
+              className="card med-card"
+              width="100%"
+              height="auto"
               role="button"
               tabIndex={0}
               onClick={() => openEditModal(m)}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openEditModal(m) } }}
             >
               <div className="card-header">
                 <h3 className="name" title={m.nome}>{m.nome}</h3>
@@ -254,7 +257,9 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
                     <span className="freq-badge" title={`A cada ${m.frequencia_horas} horas`}>{m.frequencia_horas}h</span>
                   ) : null}
                   {m.ultima_dose ? (
-                    <span className="last-badge" title={`Última dose: ${new Date(m.ultima_dose).toLocaleString('pt-BR')}`}>última: {new Date(m.ultima_dose).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="last-badge" title={`Última dose: ${new Date(m.ultima_dose).toLocaleString('pt-BR')}`}>
+                      última: {new Date(m.ultima_dose).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   ) : null}
                 </div>
               </div>
@@ -268,7 +273,7 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
                   <div className="meta">Frequência: <strong>{m.frequencia_horas} horas</strong></div>
                 )}
               </div>
-            </div>
+            </FancyCard>
           ))}
         </div>
       )}
