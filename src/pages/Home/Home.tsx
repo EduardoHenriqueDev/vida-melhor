@@ -59,6 +59,8 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
   const [doseModalOpen, setDoseModalOpen] = useState(false)
   const [doseSaving, setDoseSaving] = useState(false)
   const [elderNames, setElderNames] = useState<Record<string, string>>({})
+  const [emergencyOpen, setEmergencyOpen] = useState(false)
+  const emergencyPhone = '+55 11 91200-8730'
 
   useEffect(() => {
     const loadUser = async () => {
@@ -355,6 +357,11 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
     }
   }, [doseModalOpen, pendingMed])
 
+  const handleEmergencyCall = () => {
+    try { window.location.href = `tel:${emergencyPhone.replace(/\D/g,'')}` } catch {}
+    setEmergencyOpen(false)
+  }
+
   return (
     <div className="home-container">
       <Navbar onSignOut={handleSignOut} onOpenMenu={() => setOpen(true)} onNavigate={onNavigate} />
@@ -370,7 +377,9 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
             <span className="welcome-top">Bem-vindo(a),</span>{' '}<span className="welcome-name">{displayName}</span>
           </a>
         </div>
-        <CartIcon count={count} />
+        <button type="button" className="cart-button" onClick={() => window.dispatchEvent(new Event('cart:open'))} aria-label="Abrir carrinho">
+          <CartIcon count={count} />
+        </button>
       </div>
 
       <div className="home-toolbar">
@@ -583,7 +592,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
 
       <div className="home-bottom">
         <div className="home-emergency">
-          <button type="button" className="home-action-button emergency" aria-label="Emergência">
+          <button type="button" className="home-action-button emergency" aria-label="Emergência" onClick={() => setEmergencyOpen(true)}>
             <MdEmergency className="icon" />
             <span>Emergência</span>
           </button>
@@ -669,6 +678,27 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
             <ModalAction onClick={confirmDoseTaken} disabled={doseSaving} style={{ width: '100%' }}>
               {doseSaving ? 'Confirmando...' : 'Tomei agora'}
             </ModalAction>
+          </ModalFooter>
+        </Modal>
+      )}
+      {emergencyOpen && (
+        <Modal
+          open={emergencyOpen}
+          onClose={() => setEmergencyOpen(false)}
+          title="Emergência"
+          width={420}
+        >
+          <div className="form">
+            <div className="modal-field">
+              <div className="modal-label">Confirmar pedido de emergência</div>
+              <div className="modal-input" style={{ display:'block' }}>
+                Ao confirmar, o discador será aberto para ligar para {emergencyPhone}.
+              </div>
+            </div>
+          </div>
+          <ModalFooter>
+            <ModalAction $variant="secondary" onClick={() => setEmergencyOpen(false)}>Cancelar</ModalAction>
+            <ModalAction onClick={handleEmergencyCall}>Ligar agora</ModalAction>
           </ModalFooter>
         </Modal>
       )}

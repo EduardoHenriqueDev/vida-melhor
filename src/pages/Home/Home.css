@@ -349,6 +349,7 @@
   .med-desc {
     font-size: 0.55rem !important;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 }
 
@@ -522,6 +523,7 @@
 
 .med-desc {
   -webkit-line-clamp: 3;
+  line-clamp: 3;
 }
 
 .med-meta-line {
@@ -1661,3 +1663,5 @@
     min-height: auto !important;
   }
 }
+
+.cart-button { background:none; border:none; padding:0; cursor:pointer; display:flex; align-items:center; justify-content:center; }
