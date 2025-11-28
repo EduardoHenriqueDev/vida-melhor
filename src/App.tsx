@@ -11,6 +11,7 @@ import Pharmacies from './pages/Pharmacies/Pharmacies'
 import Store from './pages/Store/Store'
 import Consultas from './pages/Consultas/Consultas'
 import Medications from './pages/Medications/Medications'
+import CartDrawer from './components/CartDrawer/CartDrawer'
 
 function App() {
   const [currentPage, setCurrentPage] = useState<
@@ -18,6 +19,7 @@ function App() {
   >('login')
 
   const [bootstrapped, setBootstrapped] = useState(false)
+  const [cartOpen, setCartOpen] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -50,6 +52,14 @@ function App() {
     return () => subscription.unsubscribe()
   }, [])
 
+  useEffect(() => {
+    const open = () => setCartOpen(true)
+    const close = () => setCartOpen(false)
+    window.addEventListener('cart:open', open)
+    window.addEventListener('cart:close', close)
+    return () => { window.removeEventListener('cart:open', open); window.removeEventListener('cart:close', close) }
+  }, [])
+
   const handleSwitchToRegister = () => setCurrentPage('register')
   const handleSwitchToLogin = () => setCurrentPage('login')
   const handleLoginSuccess = () => setCurrentPage('home')
@@ -73,6 +83,7 @@ function App() {
 
   return (
     <div className="app">
+      {/* pages */}
       {currentPage === 'login' && (
         <Login onSwitchToRegister={handleSwitchToRegister} onLoginSuccess={handleLoginSuccess} />
       )}
@@ -111,6 +122,7 @@ function App() {
       {currentPage === 'medications' && (
         <Medications onNavigate={handleNavigate} />
       )}
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </div>
   )
 }

@@ -10,6 +10,7 @@ import CartIcon from '../../components/CartIcon/CartIcon'
 import { useCart } from '../../contexts/CartContext'
 import { FaCartPlus } from 'react-icons/fa'
 import FancyCard from '../../components/FancyCard/FancyCard'
+import CartDrawer from '../../components/CartDrawer/CartDrawer'
 
 interface storeProps {
   onBack?: () => void
@@ -23,6 +24,8 @@ const store = ({ onNavigate }: storeProps) => {
   const [displayName, setDisplayName] = useState('')
   const [open, setOpen] = useState(false)
   const { addItem, count } = useCart()
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [highlightId, setHighlightId] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     const loadUser = async () => {
@@ -54,6 +57,13 @@ const store = ({ onNavigate }: storeProps) => {
   const handleBack = () => { onNavigate?.('home') }
   const formatPrice = (cents: number) => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
+  const handleAdd = (m: Medication) => {
+    addItem({ id: m.id, name: m.name, price_in_cents: m.price_in_cents })
+    setHighlightId(m.id)
+    setDrawerOpen(true)
+    setTimeout(() => setHighlightId(undefined), 1200)
+  }
+
   if (loading) return (
     <div className="store-container">
       <Loading fullPage />
@@ -81,7 +91,9 @@ const store = ({ onNavigate }: storeProps) => {
         </button>
         <h2 className="title">Loja</h2>
         <div className="cart-wrap">
-          <CartIcon count={count} />
+          <button type="button" className="cart-button" onClick={() => window.dispatchEvent(new Event('cart:open'))} aria-label="Abrir carrinho">
+            <CartIcon count={count} />
+          </button>
         </div>
       </div>
 
@@ -108,7 +120,7 @@ const store = ({ onNavigate }: storeProps) => {
                   className={`add-btn ${m.stock === 0 ? 'disabled' : ''}`}
                   aria-label={m.stock === 0 ? `${m.name} fora de estoque` : `Adicionar ${m.name} ao carrinho`}
                   disabled={m.stock === 0}
-                  onClick={() => m.stock > 0 && addItem({ id: m.id, name: m.name, price_in_cents: m.price_in_cents })}
+                  onClick={() => m.stock > 0 && handleAdd(m)}
                 >
                   <FaCartPlus />
                 </button>
@@ -117,6 +129,7 @@ const store = ({ onNavigate }: storeProps) => {
           </FancyCard>
         ))}
       </div>
+      <CartDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} highlightId={highlightId} />
     </div>
   )
 }
