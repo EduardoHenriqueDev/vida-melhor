@@ -60,7 +60,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
   const [doseSaving, setDoseSaving] = useState(false)
   const [elderNames, setElderNames] = useState<Record<string, string>>({})
   const [emergencyOpen, setEmergencyOpen] = useState(false)
-  const emergencyPhone = '+55 11 91200-8730'
+  const emergencyPhone = '+55 11 94169-3825'
 
   useEffect(() => {
     const loadUser = async () => {
