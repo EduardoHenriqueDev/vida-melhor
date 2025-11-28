@@ -18,6 +18,7 @@ type HomeMedicineRow = {
   estoque: number
   ultima_dose: string | null
   frequencia_horas?: number | null
+  user_id?: string
 }
 
 interface HomeProps {
@@ -57,6 +58,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
   const [pendingMed, setPendingMed] = useState<HomeMedicineRow | null>(null)
   const [doseModalOpen, setDoseModalOpen] = useState(false)
   const [doseSaving, setDoseSaving] = useState(false)
+  const [elderNames, setElderNames] = useState<Record<string, string>>({})
 
   useEffect(() => {
     const loadUser = async () => {
@@ -66,14 +68,17 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       if (user?.id) {
         const { data: prof, error } = await supabase
           .from('profiles')
-          .select('name')
+          .select('name, role')
           .eq('id', user.id)
           .maybeSingle()
-        if (!error) profileName = (prof as any)?.name
+        if (!error) {
+          profileName = (prof as any)?.name
+          setisCarer(!!(prof as any)?.role)
+        }
       }
       const metaName = (user?.user_metadata as any)?.name as string | undefined
       setDisplayName(profileName || metaName || user?.email || 'Usuário')
-      setisCarer(!!(user?.user_metadata as any)?.role)
+      if (!profileName) setisCarer(!!(user?.user_metadata as any)?.role)
       setUserId(user?.id || '')
     }
     loadUser()
@@ -94,20 +99,40 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
     ensureSession()
   }, [onSignOut])
 
-  // Carrega medicamentos do usuário logado
+  // Carrega medicamentos (idoso: próprios | cuidador: dos idosos vinculados)
   useEffect(() => {
     if (!userId) return
     const loadMeds = async () => {
       setMedsLoading(true)
       setMedsError(null)
       try {
-        const { data, error } = await supabase
-          .from('medicines')
-          .select('id,nome,dose,estoque,ultima_dose,frequencia_horas')
-          .eq('user_id', userId)
-          .order('id', { ascending: false })
-        if (error) throw error
-        setMeds((data as HomeMedicineRow[]) || [])
+        if (isCarer) {
+          const { data: elders, error: eldersErr } = await supabase
+            .from('profiles')
+            .select('id,name')
+            .eq('carer_id', userId)
+          if (eldersErr) throw eldersErr
+          const ids = (elders || []).map(e => (e as any).id)
+          setElderNames(Object.fromEntries(((elders || []) as any[]).map(e => [e.id, e.name || ''])))
+
+          if (ids.length === 0) { setMeds([]); return }
+
+          const { data, error } = await supabase
+            .from('medicines')
+            .select('id,user_id,nome,dose,estoque,ultima_dose,frequencia_horas')
+            .in('user_id', ids)
+            .order('id', { ascending: false })
+          if (error) throw error
+          setMeds((data as HomeMedicineRow[]) || [])
+        } else {
+          const { data, error } = await supabase
+            .from('medicines')
+            .select('id,user_id,nome,dose,estoque,ultima_dose,frequencia_horas')
+            .eq('user_id', userId)
+            .order('id', { ascending: false })
+          if (error) throw error
+          setMeds((data as HomeMedicineRow[]) || [])
+        }
       } catch (e: any) {
         setMedsError(e?.message ?? 'Erro ao carregar medicamentos')
       } finally {
@@ -115,7 +140,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       }
     }
     loadMeds()
-  }, [userId])
+  }, [userId, isCarer])
 
   useEffect(() => {
     if (!userId) return
@@ -123,17 +148,17 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
       setConsultLoading(true); setConsultError(null)
       try {
         let rows: ConsultationRow[] = []
+
         if (isCarer) {
-          // busca ids dos idosos vinculados
+          // Cuidador: carregar consultas dos idosos vinculados
           const { data: elders, error: eldersErr } = await supabase
             .from('profiles')
             .select('id')
             .eq('carer_id', userId)
           if (eldersErr) throw eldersErr
           const ids = (elders || []).map(e => (e as any).id)
-          if (ids.length === 0) {
-            rows = []
-          } else {
+
+          if (ids.length > 0) {
             const { data: consults, error: consultErr } = await supabase
               .from('consultation')
               .select('id,name,date,type,doctor_name,specialty')
@@ -143,6 +168,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
             rows = (consults as ConsultationRow[]) || []
           }
         } else {
+          // Idoso: carregar consultas próprias
           const { data, error } = await supabase
             .from('consultation')
             .select('id,name,date,type,doctor_name,specialty')
@@ -151,6 +177,7 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
           if (error) throw error
           rows = (data as ConsultationRow[]) || []
         }
+
         setConsultations(rows)
       } catch (e: any) {
         setConsultError(e?.message || 'Erro ao carregar consultas')
@@ -448,6 +475,14 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
                   <span className="med-freq" title={`Frequência: ${m.frequencia_horas} horas`}>{m.frequencia_horas}h</span>
                 )}
               </div>
+
+              {/* Nome do paciente somente para cuidadores */}
+              {isCarer && m.user_id && elderNames[m.user_id] && (
+                <span className="med-desc" title={`Paciente: ${elderNames[m.user_id]}`}>
+                  Paciente: {elderNames[m.user_id]}
+                </span>
+              )}
+
               <span className="med-desc" title={`Dose: ${m.dose}`}>Dose: {m.dose}</span>
               <div className="med-meta-line">
                 <span className="med-stock">Estoque: {m.estoque}</span>
@@ -504,13 +539,29 @@ const Home = ({ onSignOut, onNavigate }: HomeProps) => {
                 onClick={() => onNavigate('consultas')}
               >
                 <div className="consult-mini-header">
-                  <span className="consult-name" title={c.specialty || c.name}>{c.specialty || c.name}</span>
+                  {/* Não usar c.name no header; mostrar especialidade ou rótulo genérico */}
+                  <span
+                    className="consult-name"
+                    title={c.specialty || 'Consulta'}
+                  >
+                    {c.specialty || 'Consulta'}
+                  </span>
                   <span className="consult-type" title={c.type}>{c.type}</span>
                 </div>
+
+                {/* Mostrar nome do idoso apenas para cuidadores */}
+                {isCarer && (
+                  <span className="consult-patient" title={`Paciente: ${c.name}`}>
+                    {c.name}
+                  </span>
+                )}
+
                 {c.doctor_name && (
                   <span className="consult-doc" title={`Médico: ${c.doctor_name}`}>Dr(a). {c.doctor_name}</span>
                 )}
-                <span className="consult-date" title={c.date}>{new Date(c.date).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
+                <span className="consult-date" title={c.date}>
+                  {new Date(c.date).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}
+                </span>
               </button>
             ))}
             {/* Card fixo de criação no final quando houver itens */}

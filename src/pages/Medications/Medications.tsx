@@ -46,6 +46,11 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
   const [editingId, setEditingId] = useState<number | null>(null)
 
+  // estado para identificar se o usuário é um cuidador
+  const [isCarer, setIsCarer] = useState(false)
+  // estado para armazenar os nomes dos idosos vinculados
+  const [elderNames, setElderNames] = useState<Record<string, string>>({})
+
   // helper para converter ISO -> datetime-local (horário local)
   const toDatetimeLocal = (iso?: string | null) => {
     if (!iso) return ''
@@ -81,25 +86,57 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
       const name = (user?.user_metadata as any)?.name as string | undefined
       setDisplayName(name || user?.email || 'Usuário')
       setUserId(user?.id || '')
+
+      // detecta cuidador via profiles.role (fallback user_metadata.role)
+      let carer = false
+      if (user?.id) {
+        const { data: prof } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle()
+        carer = !!((prof as any)?.role || (user?.user_metadata as any)?.role)
+      }
+      setIsCarer(carer)
     }
     loadUser()
   }, [])
 
   useEffect(() => {
-    
     if (!userId) return
     let cancelled = false
     const loadMeds = async () => {
       setListLoading(true)
       setListError(null)
       try {
-        const { data, error } = await supabase
-          .from('medicines')
-          .select('id,user_id,nome,dose,estoque,ultima_dose,frequencia_horas')
-          .eq('user_id', userId)
-          .order('id', { ascending: false })
-        if (error) throw error
-        if (!cancelled) setItems((data as MedicineRow[]) || [])
+        if (isCarer) {
+          const { data: elders, error: eldersErr } = await supabase
+            .from('profiles')
+            .select('id,name')
+            .eq('carer_id', userId)
+            .order('name', { ascending: true })
+          if (eldersErr) throw eldersErr
+          const ids = (elders || []).map(e => (e as any).id)
+          setElderNames(Object.fromEntries(((elders || []) as any[]).map(e => [e.id, e.name || ''])))
+
+          if (ids.length === 0) { if (!cancelled) setItems([]); return }
+
+          const { data, error } = await supabase
+            .from('medicines')
+            .select('id,user_id,nome,dose,estoque,ultima_dose,frequencia_horas')
+            .in('user_id', ids)
+            .order('id', { ascending: false })
+          if (error) throw error
+          if (!cancelled) setItems((data as MedicineRow[]) || [])
+        } else {
+          const { data, error } = await supabase
+            .from('medicines')
+            .select('id,user_id,nome,dose,estoque,ultima_dose,frequencia_horas')
+            .eq('user_id', userId)
+            .order('id', { ascending: false })
+          if (error) throw error
+          if (!cancelled) setItems((data as MedicineRow[]) || [])
+        }
       } catch (e: any) {
         if (!cancelled) setListError(e?.message || 'Erro ao carregar medicamentos')
       } finally {
@@ -108,7 +145,7 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
     }
     loadMeds()
     return () => { cancelled = true }
-  }, [userId])
+  }, [userId, isCarer])
 
   useEffect(() => { /* removido registro prev/last_page para usar histórico do App */ }, [])
   const handleSignOut = async () => { await signOut() }
@@ -248,7 +285,7 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
               height="auto"
               role="button"
               tabIndex={0}
-              onClick={() => openEditModal(m)}
+              onClick={() => { if (!isCarer) openEditModal(m) }}
             >
               <div className="card-header">
                 <h3 className="name" title={m.nome}>{m.nome}</h3>
@@ -264,6 +301,10 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
                 </div>
               </div>
               <div className="card-body">
+                {/* Nome do paciente somente para cuidadores */}
+                {isCarer && m.user_id && elderNames[m.user_id] && (
+                  <div className="meta">Paciente: <strong>{elderNames[m.user_id]}</strong></div>
+                )}
                 <div className="meta">Dose: <strong>{m.dose}</strong></div>
                 <div className="meta">Estoque: <strong>{m.estoque}</strong></div>
                 {m.ultima_dose && (
@@ -278,10 +319,14 @@ const Medications = ({ onBack, onNavigate }: MedicationsProps) => {
         </div>
       )}
 
-      <button type="button" className="fab" aria-label="Adicionar medicamento" onClick={openCreateModal}>
-        <FaPlus className="icon" />
-      </button>
+      {/* Esconde o botão de criação para cuidadores (somente leitura) */}
+      {!isCarer && (
+        <button type="button" className="fab" aria-label="Adicionar medicamento" onClick={openCreateModal}>
+          <FaPlus className="icon" />
+        </button>
+      )}
 
+      {/* Modal permanece igual; cuidadores não abrem edição/criação */}
       <Modal
         open={modalOpen}
         onClose={() => { if (!saving) { setModalOpen(false); setModalMode('create'); setEditingId(null); resetForm() } }}
